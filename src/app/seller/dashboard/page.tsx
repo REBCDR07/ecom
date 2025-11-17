@@ -84,7 +84,7 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
             </CardDescription>
           </div>
           <Button asChild>
-            <Link href={`/seller/add-product`}>
+            <Link href={`/seller/dashboard/add-product`}>
               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un produit
             </Link>
           </Button>
@@ -116,7 +116,7 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                          <Link href={`/seller/edit-product/${product.id}`}>Modifier</Link>
+                          <Link href={`/seller/dashboard/edit-product/${product.id}`}>Modifier</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <AlertDialogTrigger asChild>
@@ -131,7 +131,7 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
               )) : (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center h-24">Vous n'avez aucun produit.
-                    <Link href={`/seller/add-product`} className="text-primary hover:underline font-bold ml-2">
+                    <Link href={`/seller/dashboard/add-product`} className="text-primary hover:underline font-bold ml-2">
                       Commencez par en ajouter un !
                     </Link>
                   </TableCell>
@@ -162,6 +162,10 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
 function OrdersTab({ orders, sellerId }: { orders: Order[], sellerId: string }) {
     const { updateOrderStatus } = useOrders();
     const [currentOrders, setCurrentOrders] = useState(orders);
+
+    useEffect(() => {
+        setCurrentOrders(orders);
+    }, [orders]);
 
     const handleStatusChange = (orderId: string, newStatus: 'pending' | 'shipped' | 'delivered') => {
         updateOrderStatus(orderId, newStatus);
@@ -324,10 +328,10 @@ export default function SellerDashboard() {
                 <TabsTrigger value="products">Produits ({products.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="orders" className="mt-4">
-                <OrdersTab orders={orders} sellerId={user.id} />
+               {user && <OrdersTab orders={orders} sellerId={user.id} />}
             </TabsContent>
             <TabsContent value="products" className="mt-4">
-                <ProductsTab products={products} user={seller} setProductToDelete={setProductToDelete} refreshSellerData={refreshSellerData} />
+              {seller && <ProductsTab products={products} user={seller} setProductToDelete={setProductToDelete} refreshSellerData={refreshSellerData} />}
             </TabsContent>
         </Tabs>
     </div>

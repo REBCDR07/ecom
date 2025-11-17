@@ -1,4 +1,3 @@
-
 "use client"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -41,7 +40,7 @@ export default function SellerLayout({
   
   const navItems = [
       { href: "/seller/dashboard", icon: Home, label: "Tableau de bord", badge: newOrdersCount > 0 ? newOrdersCount : undefined },
-      { href: "/seller/profile", icon: Settings, label: "Mon profil" },
+      { href: "/seller/dashboard/profile", icon: Settings, label: "Mon profil" },
   ]
 
 
@@ -90,7 +89,7 @@ export default function SellerLayout({
                     key={item.href}
                     href={item.href}
                     className={cn("flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                    { "bg-muted text-primary": pathname.startsWith(item.href) }
+                    { "bg-muted text-primary": pathname === item.href }
                     )}
               >
                 <item.icon className="h-4 w-4" />
