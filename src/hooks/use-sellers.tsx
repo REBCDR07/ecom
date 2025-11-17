@@ -5,7 +5,6 @@ import { useCallback } from 'react';
 
 const PENDING_SELLERS_KEY = 'pending_sellers';
 const APPROVED_SELLERS_KEY = 'approved_sellers';
-const PRODUCTS_KEY = 'all_products';
 
 
 export const useSellers = () => {
@@ -38,7 +37,7 @@ export const useSellers = () => {
         const pendingSellers = getPendingSellers();
         const newSellerApplication: SellerApplication = {
             ...sellerData,
-            id: crypto.randomUUID(),
+            id: `seller_${crypto.randomUUID()}`,
             submissionDate: new Date().toISOString(),
             status: 'pending',
             type: 'seller'
@@ -129,6 +128,11 @@ export const useSellers = () => {
         saveToStorage(APPROVED_SELLERS_KEY, updatedSellers);
     }, [getFromStorage, saveToStorage]);
     
+    const getSellerById = useCallback((sellerId: string): Seller | null => {
+        const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
+        return approvedSellers.find(s => s.id === sellerId) || null;
+    }, [getFromStorage]);
+
     return {
         getPendingSellers,
         addPendingSeller,
@@ -137,5 +141,6 @@ export const useSellers = () => {
         addProduct,
         updateProduct,
         deleteProduct,
+        getSellerById,
     };
 };
