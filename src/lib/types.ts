@@ -37,6 +37,24 @@ export interface SellerApplication extends Omit<Seller, 'profilePicture' | 'imag
   status: 'pending' | 'approved' | 'rejected';
 }
 
+export type Order = {
+  id: string;
+  productId: string;
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  sellerId: string;
+  buyerId: string;
+  buyerFirstName: string;
+  buyerLastName: string;
+  buyerEmail: string;
+  buyerPhone: string;
+  deliveryAddress: string;
+  orderDate: string;
+  status: 'pending' | 'shipped' | 'delivered';
+}
+
 
 export type SellerProduct = {
   id: string;

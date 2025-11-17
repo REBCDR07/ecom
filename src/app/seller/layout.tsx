@@ -7,7 +7,7 @@ import {
   LogOut,
   Package,
   Settings,
-  Users,
+  ShoppingBag,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -15,12 +15,8 @@ import { cn } from "@/lib/utils"
 import { useAuthContext } from "@/hooks/use-auth-provider"
 import { useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
-
-const navItems = [
-    { href: "/seller/dashboard", icon: Home, label: "Tableau de bord" },
-    { href: "/seller/products", icon: Package, label: "Produits" },
-    { href: "/seller/profile", icon: Settings, label: "Mon profil" },
-]
+import { Badge } from "@/components/ui/badge"
+import { useOrders } from "@/hooks/use-orders"
 
 export default function SellerLayout({
   children,
@@ -31,9 +27,17 @@ export default function SellerLayout({
   const { user, logout } = useAuthContext();
   const router = useRouter();
   const { toast } = useToast();
+  const { getOrdersForSeller } = useOrders();
+
+  const newOrdersCount = user ? getOrdersForSeller(user.id).filter(o => o.status === 'pending').length : 0;
+  
+  const navItems = [
+      { href: "/seller/dashboard", icon: Home, label: "Tableau de bord", badge: newOrdersCount > 0 ? newOrdersCount : undefined },
+      { href: "/seller/profile", icon: Settings, label: "Mon profil" },
+  ]
+
 
   useEffect(() => {
-    // We need to wait for the user state to be loaded from localStorage
     if (user === undefined) return;
 
     if (user === null || user.type !== 'seller') {
@@ -52,7 +56,6 @@ export default function SellerLayout({
     router.push('/login');
   }
 
-  // Render a loading state until the auth check is complete
   if (user === undefined || user === null || user.type !== 'seller') {
       return (
           <div className="flex min-h-[calc(100vh-57px)] items-center justify-center">
@@ -84,6 +87,7 @@ export default function SellerLayout({
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
+                {item.badge && <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">{item.badge}</Badge>}
               </Link>
              ))}
             </nav>

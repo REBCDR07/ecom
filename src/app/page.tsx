@@ -163,7 +163,7 @@ export default function Home() {
           </div>
           <div className="text-center mt-12">
             <Button asChild variant="link" className="text-accent text-lg">
-              <Link href="#">
+              <Link href="/sellers">
                 Voir tous les vendeurs <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>

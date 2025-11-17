@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Store, Bell, LogOut } from 'lucide-react';
+import { Menu, Store, Bell, LogOut, LayoutDashboard } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 
 const navLinks = [
   { href: '/', label: 'Accueil' },
-  { href: '#', label: 'Vendeurs' },
+  { href: '/sellers', label: 'Vendeurs' },
   { href: '#', label: 'FAQ' },
   { href: '#', label: 'Contact' },
 ];
@@ -146,13 +146,21 @@ export function Header() {
             {/* Can add search bar here later */}
           </div>
           <nav className="flex items-center">
-            {user && <NotificationsPopover />}
+            {user && user.type === 'seller' && <NotificationsPopover />}
             
             {user ? (
               <>
                  {user.type === 'seller' && (
                     <Button variant="ghost" asChild size="sm">
                       <Link href="/seller/dashboard">Tableau de bord</Link>
+                    </Button>
+                 )}
+                 {user.type === 'buyer' && (
+                    <Button variant="ghost" asChild size="sm">
+                        <Link href="/buyer/dashboard">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            Mes commandes
+                        </Link>
                     </Button>
                  )}
                 <Button variant="ghost" onClick={handleLogout} size="sm">
