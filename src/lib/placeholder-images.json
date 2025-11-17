@@ -3,74 +3,92 @@
     {
       "id": "hero-1",
       "description": "A vibrant market stall",
-      "imageUrl": "https://images.unsplash.com/photo-1623426402044-bf2f793edcad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFya2V0JTIwc3RhbGx8ZW58MHx8fHwxNzYzMjg2ODg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "market stall"
+      "imageUrl": "https://images.unsplash.com/photo-1761530470389-a815692f6178?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx2aWJyYW50JTIwbWFya2V0fGVufDB8fHx8MTc2MzM5Mzk1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vibrant market"
+    },
+    {
+      "id": "hero-2",
+      "description": "Local crafts on display",
+      "imageUrl": "https://images.unsplash.com/photo-1760228807230-3877a50a57f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsb2NhbCUyMGNyYWZ0c3xlbnwwfHx8fDE3NjMzOTM5NTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "local crafts"
+    },
+    {
+      "id": "hero-3",
+      "description": "Fresh produce and spices",
+      "imageUrl": "https://images.unsplash.com/photo-1592558480962-903b06077406?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJlc2glMjBwcm9kdWNlfGVufDB8fHx8MTc2MzM3ODA4MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh produce"
     },
     {
       "id": "product-1",
       "description": "Handmade jewelry",
-      "imageUrl": "https://images.unsplash.com/photo-1679590988898-50c20140aec0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxoYW5kbWFkZSUyMGpld2Vscnl8ZW58MHx8fHwxNzYzMzY1ODc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1522001947148-8b4dfe064edc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxoYW5kbWFkZSUyMGpld2Vscnl8ZW58MHx8fHwxNzYzMzY1ODc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "handmade jewelry"
     },
     {
       "id": "product-2",
       "description": "Artisanal leather bag",
-      "imageUrl": "https://images.unsplash.com/photo-1624687943971-e86af76d57de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxsZWF0aGVyJTIwYmFnfGVufDB8fHx8MTc2MzI5ODM3OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bGVhdGhlciUyMGJhZ3xlbnwwfHx8fDE3NjMyOTgzNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "leather bag"
     },
     {
       "id": "product-3",
       "description": "Aromatic spices in bowls",
-      "imageUrl": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzcGljZXN8ZW58MHx8fHwxNzYzMzYyMDE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzcGljZXN8ZW58MHx8fHwxNzYzMzYyMDE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "spices"
     },
     {
       "id": "product-4",
       "description": "Woven basket",
-      "imageUrl": "https://images.unsplash.com/photo-1566958339156-8ffbfb53acb5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx3b3ZlbiUyMGJhc2tldHxlbnwwfHx8fDE3NjMzNzQ0MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1674591409662-55f4f2c55fff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3b3ZlbiUyMGJhc2tldHxlbnwwfHx8fDE3NjMzNzQ0MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woven basket"
     },
     {
       "id": "product-5",
       "description": "Handcrafted pottery",
-      "imageUrl": "https://images.unsplash.com/photo-1631125915732-b98f8774f675?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwb3R0ZXJ5fGVufDB8fHx8MTc2MzM2ODY0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1609881583302-61548332039c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3R0ZXJ5fGVufDB8fHx8MTc2MzM2ODY0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "pottery"
     },
     {
       "id": "product-6",
       "description": "Colorful textiles",
-      "imageUrl": "https://images.unsplash.com/photo-1674198412661-f2fd7cddd301?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjb2xvcmZ1bCUyMHRleHRpbGVzfGVufDB8fHx8MTc2MzM5MTMxOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1722957532966-99ff40756cb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb2xvcmZ1bCUyMHRleHRpbGVzfGVufDB8fHx8MTc2MzM5MTMxOXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "colorful textiles"
     },
     {
       "id": "seller-1",
       "description": "Portrait of a female artisan",
-      "imageUrl": "https://images.unsplash.com/photo-1552699611-e2c208d5d9cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3J0cmFpdCUyMHdvbWFufGVufDB8fHx8MTc2MzM3Mzg2OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1634595477722-7bc68dd410fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwb3J0cmFpdCUyMHdvbWFufGVufDB8fHx8MTc2MzM3Mzg2OXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "portrait woman"
     },
     {
       "id": "seller-2",
       "description": "Portrait of a male artisan",
-      "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cG9ydHJhaXQlMjBtYW58ZW58MHx8fHwxNzYzMzA1ODQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1635995554625-6c1deba1732e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwb3J0cmFpdCUyMG1hbnxlbnwwfHx8fDE3NjMzMDU4NDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "portrait man"
     },
     {
       "id": "seller-3",
       "description": "Portrait of a smiling woman",
-      "imageUrl": "https://images.unsplash.com/photo-1603024831285-6c56249e72d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwb3J0cmFpdCUyMHNtaWxpbmd8ZW58MHx8fHwxNzYzMzU0NzQ0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1640717816490-6a3f6525e6ed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwb3J0cmFpdCUyMHNtaWxpbmd8ZW58MHx8fHwxNzYzMzU0NzQ0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "portrait smiling"
     },
     {
       "id": "seller-4",
       "description": "Portrait of a craftsman",
-      "imageUrl": "https://images.unsplash.com/photo-1609224871627-4f69e57d9380?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMGNyYWZ0c21hbnxlbnwwfHx8fDE3NjMzOTEzMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1744570454111-bdc97f8192a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3J0cmFpdCUyMGNyYWZ0c21hbnxlbnwwfHx8fDE3NjMzOTEzMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "portrait craftsman"
     },
     {
       "id": "seller-5",
       "description": "Portrait of a young entrepreneur",
-      "imageUrl": "https://images.unsplash.com/photo-1753351056376-5768262824c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3J0cmFpdCUyMGVudHJlcHJlbmV1cnxlbnwwfHx8fDE3NjMzOTEzMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1548021777-df55ee05a88a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwb3J0cmFpdCUyMGVudHJlcHJlbmV1cnxlbnwwfHx8fDE3NjMzOTEzMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "portrait entrepreneur"
+    },
+    {
+      "id": "seller-banner-1",
+      "description": "Artisan workshop banner",
+      "imageUrl": "https://images.unsplash.com/photo-1552836514-bbf70221e437?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhcnRpc2FuJTIwd29ya3Nob3B8ZW58MHx8fHwxNzYzMzkzOTU1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "artisan workshop"
     }
   ]
 }

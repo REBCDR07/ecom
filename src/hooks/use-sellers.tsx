@@ -2,6 +2,8 @@
 
 import { Seller, SellerApplication, Product } from '@/lib/types';
 import { useCallback } from 'react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
 
 const PENDING_SELLERS_KEY = 'pending_sellers';
 const APPROVED_SELLERS_KEY = 'approved_sellers';
@@ -53,12 +55,13 @@ export const useSellers = () => {
 
         if (sellerToApprove) {
             const remainingPending = pendingSellers.filter(s => s.id !== sellerId);
+            const sellerImage = PlaceHolderImages.find(img => img.id === 'seller-1') || { imageUrl: `https://picsum.photos/seed/${sellerToApprove.id}/100/100`, imageHint: 'portrait' };
             
             const newApprovedSeller: Seller = {
                 id: sellerToApprove.id,
                 companyName: sellerToApprove.companyName,
-                profilePicture: `https://picsum.photos/seed/${sellerToApprove.id}/100/100`, // Placeholder
-                imageHint: 'portrait', // Placeholder
+                profilePicture: sellerImage.imageUrl,
+                imageHint: sellerImage.imageHint,
                 firstName: sellerToApprove.firstName,
                 lastName: sellerToApprove.lastName,
                 email: sellerToApprove.email,

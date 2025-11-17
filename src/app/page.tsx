@@ -4,9 +4,6 @@ import {
   ArrowRight,
   Store,
   ShoppingBag,
-  CheckCircle,
-  User,
-  Package,
   Wallet,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,23 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
-  const heroImages = [
-    {
-      src: 'https://picsum.photos/seed/market-hero-1/1600/900',
-      alt: 'Marché animé avec des étals colorés',
-      hint: 'vibrant market',
-    },
-    {
-      src: 'https://picsum.photos/seed/market-hero-2/1600/900',
-      alt: 'Artisanat local exposé sur un stand',
-      hint: 'local crafts',
-    },
-    {
-      src: 'https://picsum.photos/seed/market-hero-3/1600/900',
-      alt: 'Gros plan sur des épices et des produits frais',
-      hint: 'fresh produce',
-    },
-  ];
+    const heroImages = PlaceHolderImages.filter(img => img.id.startsWith('hero-'));
 
   return (
     <div className="flex flex-col">
@@ -49,19 +30,14 @@ export default function Home() {
         <Carousel
           opts={{ loop: true }}
           className="w-full h-full"
-          plugins={[
-            // Autoplay({
-            //   delay: 5000,
-            // }),
-          ]}
         >
           <CarouselContent className="h-full">
             {heroImages.map((image, index) => (
               <CarouselItem key={index} className="h-full">
                 <Image
-                  src={image.src}
-                  alt={image.alt}
-                  data-ai-hint={image.hint}
+                  src={image.imageUrl}
+                  alt={image.description}
+                  data-ai-hint={image.imageHint}
                   fill
                   className="object-cover"
                   priority={index === 0}
