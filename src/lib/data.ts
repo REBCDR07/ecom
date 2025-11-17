@@ -10,6 +10,7 @@ export const featuredProducts: Product[] = [
     imageHint: 'handmade jewelry',
     sellerId: 'seller_1',
     sellerName: 'Artisans du Bénin',
+    description: "De magnifiques bijoux faits à la main, parfaits pour toutes les occasions. Chaque pièce est unique et raconte une histoire."
   },
   {
     id: 'prod_2',
@@ -19,6 +20,7 @@ export const featuredProducts: Product[] = [
     imageHint: 'leather bag',
     sellerId: 'seller_2',
     sellerName: 'Maroc & Co',
+    description: "Un sac en cuir robuste et élégant, idéal pour un usage quotidien. Fabriqué avec les meilleurs cuirs pour une durabilité maximale."
   },
   {
     id: 'prod_3',
@@ -28,6 +30,7 @@ export const featuredProducts: Product[] = [
     imageHint: 'spices',
     sellerId: 'seller_3',
     sellerName: 'Saveurs d\'Afrique',
+    description: "Un assortiment d'épices locales pour relever tous vos plats. Saveurs garanties pour un voyage culinaire inoubliable."
   },
   {
     id: 'prod_4',
@@ -38,6 +41,7 @@ export const featuredProducts: Product[] = [
     imageHint: 'woven basket',
     sellerId: 'seller_4',
     sellerName: 'Tissage Royal',
+    description: "Panier tressé à la main par nos artisans. Parfait pour le marché, la plage ou comme élément de décoration."
   },
   {
     id: 'prod_5',
@@ -47,6 +51,7 @@ export const featuredProducts: Product[] = [
     imageHint: 'pottery',
     sellerId: 'seller_1',
     sellerName: 'Artisans du Bénin',
+    description: "Vases et bols en poterie, modelés et peints à la main. Chaque pièce apporte une touche d'authenticité à votre intérieur."
   },
   {
     id: 'prod_6',
@@ -56,6 +61,7 @@ export const featuredProducts: Product[] = [
     imageHint: 'colorful textiles',
     sellerId: 'seller_4',
     sellerName: 'Tissage Royal',
+    description: "Tissus africains aux motifs vibrants et colorés. Idéal pour la confection de vêtements, d'accessoires ou pour la décoration."
   },
 ];
 
@@ -65,30 +71,65 @@ export const topSellers: Seller[] = [
     companyName: 'Artisans du Bénin',
     profilePicture: 'https://picsum.photos/seed/seller-woman1/100/100',
     imageHint: 'portrait woman',
+    firstName: "Marie",
+    lastName: "Adan",
+    email: "seller1@test.com",
+    phone: "96000001",
+    whatsapp: "96000001",
+    address: "Rue de l'artisan, Cotonou",
+    type: 'seller'
   },
   {
     id: 'seller_2',
     companyName: 'Maroc & Co',
     profilePicture: 'https://picsum.photos/seed/seller-man1/100/100',
     imageHint: 'portrait man',
+    firstName: "Hassan",
+    lastName: "Alaoui",
+    email: "seller2@test.com",
+    phone: "96000002",
+    whatsapp: "96000002",
+    address: "Avenue du cuir, Porto-Novo",
+    type: 'seller'
   },
   {
     id: 'seller_3',
     companyName: 'Saveurs d\'Afrique',
     profilePicture: 'https://picsum.photos/seed/seller-woman2/100/100',
     imageHint: 'portrait smiling',
+     firstName: "Aicha",
+    lastName: "Diallo",
+    email: "seller3@test.com",
+    phone: "96000003",
+    whatsapp: "96000003",
+    address: "Carrefour des épices, Parakou",
+    type: 'seller'
   },
   {
     id: 'seller_4',
     companyName: 'Tissage Royal',
     profilePicture: 'https://picsum.photos/seed/seller-man2/100/100',
     imageHint: 'portrait craftsman',
+    firstName: "Koffi",
+    lastName: "Zinsou",
+    email: "seller4@test.com",
+    phone: "96000004",
+    whatsapp: "96000004",
+    address: "Boulevard du textile, Abomey",
+    type: 'seller'
   },
    {
     id: 'seller_5',
     companyName: 'Beauté Naturelle',
     profilePicture: 'https://picsum.photos/seed/seller-woman3/100/100',
     imageHint: 'portrait entrepreneur',
+    firstName: "Fatou",
+    lastName: "N'Diaye",
+    email: "seller5@test.com",
+    phone: "96000005",
+    whatsapp: "96000005",
+    address: "Place du karité, Natitingou",
+    type: 'seller'
   },
 ];
 

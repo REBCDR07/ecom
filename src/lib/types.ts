@@ -7,6 +7,7 @@ export type Product = {
   imageHint: string;
   sellerId: string;
   sellerName: string;
+  description: string;
 };
 
 export interface User {
@@ -26,9 +27,10 @@ export interface Seller extends User {
   whatsapp: string;
   address: string;
   type: 'seller';
+  products?: Product[];
 }
 
-export interface SellerApplication extends Omit<Seller, 'profilePicture' | 'imageHint'> {
+export interface SellerApplication extends Omit<Seller, 'profilePicture' | 'imageHint' | 'products'> {
   activity: string;
   whyPlatform: string;
   submissionDate: string;

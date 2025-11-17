@@ -13,8 +13,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const hasDiscount = product.promotionalPrice && product.promotionalPrice < product.price;
 
   return (
-    <Card className="w-full max-w-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <Link href="#">
+    <Card className="w-full max-w-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
+      <Link href={`/seller/${product.sellerId}`} className="flex-grow">
         <CardContent className="p-0">
           <div className="relative aspect-square w-full">
             <Image
@@ -35,7 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
           <div className="p-4 space-y-2">
-            <p className="text-sm text-muted-foreground">{product.sellerName}</p>
+            <p className="text-sm text-muted-foreground hover:underline">{product.sellerName}</p>
             <h3 className="font-semibold text-lg truncate">{product.name}</h3>
             <div className="flex items-baseline gap-2">
               <p className="text-xl font-bold text-accent">
@@ -50,7 +50,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </CardContent>
       </Link>
-       <div className="px-4 pb-4">
+       <div className="px-4 pb-4 mt-auto">
           <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Commander</Button>
       </div>
     </Card>
