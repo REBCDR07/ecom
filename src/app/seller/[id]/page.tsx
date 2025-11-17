@@ -1,5 +1,6 @@
+
 "use client";
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { useSellers } from '@/hooks/use-sellers';
 import { Seller } from '@/lib/types';
@@ -58,7 +59,9 @@ function ContactDialog({seller}: {seller: Seller}) {
 }
 
 
-export default function SellerProfilePage({ params: { id } }: { params: { id: string } }) {
+export default function SellerProfilePage() {
+    const params = useParams();
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     const { getSellerById } = useSellers();
     const [seller, setSeller] = useState<Seller | null>(null);
 
