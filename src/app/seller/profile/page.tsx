@@ -50,7 +50,8 @@ export default function ManageSellerProfilePage() {
                 <Card className="mt-2 aspect-[4/1] relative overflow-hidden">
                   <Image src={bannerImage.imageUrl} alt="Bannière" fill className="object-cover" />
                 </Card>
-                <Input type="file" className="mt-2" />
+                <Input type="file" className="mt-2" disabled/>
+                <p className="text-sm text-muted-foreground mt-1">La modification de la bannière n'est pas disponible pour le moment.</p>
               </div>
                <div>
                 <Label>Photo de profil</Label>
@@ -59,8 +60,9 @@ export default function ManageSellerProfilePage() {
                         <AvatarImage src={seller.profilePicture} />
                         <AvatarFallback>{seller.companyName.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <Input type="file" />
+                    <Input type="file" disabled/>
                 </div>
+                 <p className="text-sm text-muted-foreground mt-1">La modification de la photo de profil n'est pas disponible.</p>
               </div>
             </div>
 
@@ -105,7 +107,7 @@ export default function ManageSellerProfilePage() {
 
             <div className="flex justify-end gap-2">
                 <Button variant="outline" type="button" onClick={() => router.back()}>Annuler</Button>
-                <Button type="submit">Sauvegarder les modifications</Button>
+                <Button type="submit" disabled>Sauvegarder (non fonctionnel)</Button>
             </div>
           </form>
         </CardContent>

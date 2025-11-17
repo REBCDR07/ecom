@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useAuthContext } from "@/hooks/use-auth-provider"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { useOrders } from "@/hooks/use-orders"
@@ -29,7 +29,14 @@ export default function SellerLayout({
   const { toast } = useToast();
   const { getOrdersForSeller } = useOrders();
 
-  const newOrdersCount = user ? getOrdersForSeller(user.id).filter(o => o.status === 'pending').length : 0;
+  const [newOrdersCount, setNewOrdersCount] = useState(0);
+  
+  useEffect(() => {
+    if (user && user.type === 'seller') {
+      const pendingOrders = getOrdersForSeller(user.id).filter(o => o.status === 'pending').length;
+      setNewOrdersCount(pendingOrders);
+    }
+  }, [user, getOrdersForSeller, pathname]); // Re-check on path change too
   
   const navItems = [
       { href: "/seller/dashboard", icon: Home, label: "Tableau de bord", badge: newOrdersCount > 0 ? newOrdersCount : undefined },
