@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,18 +15,27 @@ import { Label } from '@/components/ui/label';
 import { Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+const ADMIN_PASSWORD_KEY = 'admin_password';
+
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
   const { toast } = useToast();
 
+  useEffect(() => {
+    // Set the admin password in localStorage if it's not already there.
+    if (typeof window !== 'undefined' && !localStorage.getItem(ADMIN_PASSWORD_KEY)) {
+      localStorage.setItem(ADMIN_PASSWORD_KEY, 'BeninShell@2025');
+    }
+  }, []);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // IMPORTANT: This is a temporary and insecure way to handle admin login.
-    // In a real application, you MUST use a proper authentication system.
-    if (password === 'BeninShell@25ad') {
-      // In a real app, you'd set a secure, http-only cookie or a session token.
+    const storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
+    
+    if (password === storedPassword) {
       // For this prototype, we'll just redirect.
+      // In a real app, you'd set a secure session token.
       router.push('/admin/dashboard');
     } else {
       toast({

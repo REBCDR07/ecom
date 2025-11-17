@@ -29,13 +29,12 @@ export const useAuth = () => {
       if (typeof window === 'undefined') return null;
 
       const approvedSellers: User[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
-      // In a real app, you'd also check buyers.
-      // const buyers = JSON.parse(localStorage.getItem('buyers') || '[]');
+      const buyers: User[] = JSON.parse(localStorage.getItem('buyers') || '[]');
       
       const foundSeller = approvedSellers.find((s: User) => s.email === email && s.password === password);
-      // const foundBuyer = buyers.find((b: User) => b.email === email && b.password === password);
+      const foundBuyer = buyers.find((b: User) => b.email === email && b.password === password);
 
-      const foundUser = foundSeller; // Or combine with buyer logic
+      const foundUser = foundSeller || foundBuyer;
 
       if (foundUser) {
         localStorage.setItem(AUTH_KEY, JSON.stringify(foundUser));

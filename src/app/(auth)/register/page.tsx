@@ -19,6 +19,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useSellers } from '@/hooks/use-sellers';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { User } from '@/lib/types';
 
 const buyerSchema = z.object({
   firstName: z.string().min(1, "Le prénom est requis"),
@@ -62,8 +63,18 @@ function BuyerRegisterForm() {
   const router = useRouter();
 
   const onSubmit: SubmitHandler<BuyerFormValues> = (data) => {
-    // For now, we just show a toast and redirect. Buyer logic can be added later.
-     toast({
+    const buyers: User[] = JSON.parse(localStorage.getItem('buyers') || '[]');
+    const newBuyer: User = {
+      id: crypto.randomUUID(),
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      type: 'buyer',
+    };
+    localStorage.setItem('buyers', JSON.stringify([...buyers, newBuyer]));
+    
+    toast({
       title: "Compte client créé !",
       description: "Vous pouvez maintenant vous connecter.",
     });
