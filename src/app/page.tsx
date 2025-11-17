@@ -1,3 +1,4 @@
+"use client";
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -16,12 +17,23 @@ import {
 } from '@/components/ui/carousel';
 import { Card, CardContent } from '@/components/ui/card';
 import { ProductCard } from '@/components/product-card';
-import { featuredProducts, topSellers } from '@/lib/data';
+import { topSellers } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useEffect, useState } from 'react';
+import { Product, Seller } from '@/lib/types';
 
 export default function Home() {
     const heroImages = PlaceHolderImages.filter(img => img.id.startsWith('hero-'));
+    const [allProducts, setAllProducts] = useState<Product[]>([]);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
+            const productsFromSellers = approvedSellers.flatMap(seller => seller.products || []);
+            setAllProducts(productsFromSellers);
+        }
+    }, []);
 
   return (
     <div className="flex flex-col">
@@ -109,33 +121,39 @@ export default function Home() {
           <h2 className="text-center mb-12">
             Produits à la une
           </h2>
-          <Carousel
-            opts={{
-              align: 'start',
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {featuredProducts.map((product) => (
-                <CarouselItem
-                  key={product.id}
-                  className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
-                >
-                  <div className="p-1">
-                    <ProductCard product={product} />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden sm:flex" />
-            <CarouselNext className="hidden sm:flex" />
-          </Carousel>
+          {allProducts.length > 0 ? (
+            <Carousel
+              opts={{
+                align: 'start',
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {allProducts.map((product) => (
+                  <CarouselItem
+                    key={product.id}
+                    className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                  >
+                    <div className="p-1">
+                      <ProductCard product={product} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden sm:flex" />
+              <CarouselNext className="hidden sm:flex" />
+            </Carousel>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <p className="text-muted-foreground">Aucun produit n'est actuellement en vente. Devenez le premier vendeur !</p>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Top Sellers Section */}
-      <section className="py-16 lg:py-24 bg-card">
+      <section className="py-16 lg-py-24 bg-card">
         <div className="container mx-auto px-4">
           <h2 className="text-center mb-12">
             Nos meilleurs vendeurs
