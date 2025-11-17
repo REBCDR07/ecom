@@ -102,7 +102,7 @@ export function Header() {
           <nav className="flex items-center gap-6 text-sm">
             {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={`${link.href}-${link.label}`}
                 href={link.href}
                 className="transition-colors hover:text-foreground/80 text-foreground/60"
               >
@@ -132,7 +132,7 @@ export function Header() {
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
               <div className="flex flex-col space-y-3">
                 {navLinks.map((link) => (
-                  <Link key={link.href} href={link.href}>
+                  <Link key={link.label} href={link.href}>
                     {link.label}
                   </Link>
                 ))}
