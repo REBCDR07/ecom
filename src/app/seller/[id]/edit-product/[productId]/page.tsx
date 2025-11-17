@@ -41,11 +41,12 @@ export default function EditProductPage({ params }: { params: { id: string, prod
     if (!user || !product) return;
 
     const formData = new FormData(e.currentTarget);
+    const promotionalPrice = formData.get('promotionalPrice');
     const updatedProductData: Product = {
       ...product,
       name: formData.get('product-name') as string,
       price: Number(formData.get('price')),
-      promotionalPrice: formData.get('promotionalPrice') ? Number(formData.get('promotionalPrice')) : undefined,
+      promotionalPrice: promotionalPrice && Number(promotionalPrice) > 0 ? Number(promotionalPrice) : undefined,
       description: formData.get('description') as string,
       image: product.image, // Image upload not implemented in this version
       imageHint: product.imageHint,
@@ -81,13 +82,13 @@ export default function EditProductPage({ params }: { params: { id: string, prod
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="product-name">Nom du produit</Label>
-              <Input id="product-name" name="product-name" defaultValue={product.name} />
+              <Input id="product-name" name="product-name" defaultValue={product.name} required />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price">Prix (F CFA)</Label>
-                <Input id="price" name="price" type="number" defaultValue={product.price} />
+                <Input id="price" name="price" type="number" defaultValue={product.price} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="promotionalPrice">Prix promotionnel (Optionnel)</Label>
@@ -97,7 +98,7 @@ export default function EditProductPage({ params }: { params: { id: string, prod
 
             <div className="space-y-2">
               <Label htmlFor="description">Description du produit</Label>
-              <Textarea id="description" name="description" defaultValue={product.description} rows={5} />
+              <Textarea id="description" name="description" defaultValue={product.description} rows={5} required />
             </div>
             
             <div className="space-y-2">

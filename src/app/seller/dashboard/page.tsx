@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge";
 import { useAuthContext } from "@/hooks/use-auth-provider";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Product, Seller } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useSellers } from "@/hooks/use-sellers";
@@ -40,7 +40,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
 export default function SellerDashboard() {
@@ -50,8 +49,9 @@ export default function SellerDashboard() {
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState({ totalSales: "0 F CFA", totalOrders: 0 });
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
-  useEffect(() => {
+  const refreshSellerData = useCallback(() => {
     if (user && user.type === 'seller' && typeof window !== 'undefined') {
         const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
         const currentSeller = approvedSellers.find(s => s.id === user.id);
@@ -60,26 +60,36 @@ export default function SellerDashboard() {
           const sellerProducts = currentSeller.products || [];
           setProducts(sellerProducts);
 
-          const totalSales = sellerProducts.reduce((acc, p) => acc + (p.promotionalPrice || p.price), 0);
+          // This is a simplified metric. In a real app, this would come from order history.
+          const totalSales = sellerProducts.reduce((acc, p) => {
+            const price = p.promotionalPrice || p.price;
+            // Let's assume each product was sold once for this estimation
+            return acc + price;
+          }, 0);
+
           setStats({
             totalSales: `${totalSales.toLocaleString('fr-FR')} F CFA`,
-            totalOrders: sellerProducts.length, // Simplified metric
+            totalOrders: sellerProducts.length, 
           });
         }
     }
   }, [user]);
 
-  const handleDeleteProduct = (productId: string) => {
-    if (!user) return;
-    deleteProduct(user.id, productId);
-    // Refresh products list
-    const updatedProducts = products.filter(p => p.id !== productId);
-    setProducts(updatedProducts);
+  useEffect(() => {
+    refreshSellerData();
+  }, [user, refreshSellerData]);
+
+
+  const handleDeleteProduct = () => {
+    if (!user || !productToDelete) return;
+    deleteProduct(user.id, productToDelete);
+    refreshSellerData();
     toast({
       variant: 'destructive',
       title: 'Produit supprimé',
       description: 'Votre produit a été supprimé avec succès.',
     });
+    setProductToDelete(null);
   };
 
   if (!user || !seller) {
@@ -137,6 +147,7 @@ export default function SellerDashboard() {
                 </CardContent>
             </Card>
         </div>
+        <AlertDialog>
         <Card>
             <CardHeader>
                 <CardTitle>Vos Produits</CardTitle>
@@ -167,7 +178,6 @@ export default function SellerDashboard() {
                             </TableCell>
                             <TableCell>{(product.promotionalPrice || product.price).toLocaleString('fr-FR')} F CFA</TableCell>
                             <TableCell>
-                                <AlertDialog>
                                   <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
                                       <Button aria-haspopup="true" size="icon" variant="ghost">
@@ -181,28 +191,13 @@ export default function SellerDashboard() {
                                           <Link href={`/seller/${user.id}/edit-product/${product.id}`}>Modifier</Link>
                                       </DropdownMenuItem>
                                       <DropdownMenuSeparator />
-                                      <AlertDialogTrigger asChild>
-                                        <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                                       <AlertDialogTrigger asChild>
+                                        <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={() => setProductToDelete(product.id)}>
                                           Supprimer
                                         </DropdownMenuItem>
                                       </AlertDialogTrigger>
                                       </DropdownMenuContent>
                                   </DropdownMenu>
-                                  <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Êtes-vous sûr?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Cette action est irréversible. Le produit sera définitivement supprimé.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} className="bg-destructive hover:bg-destructive/90">
-                                          Supprimer
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
                             </TableCell>
                         </TableRow>
                         )) : (
@@ -218,6 +213,21 @@ export default function SellerDashboard() {
                 </Table>
             </CardContent>
         </Card>
+         <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Cette action est irréversible. Le produit sera définitivement supprimé.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setProductToDelete(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteProduct} className="bg-destructive hover:bg-destructive/90">
+                Supprimer
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+        </AlertDialog>
     </div>
   );
 }
