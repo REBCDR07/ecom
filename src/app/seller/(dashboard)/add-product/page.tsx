@@ -1,3 +1,4 @@
+
 "use client";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,7 +12,7 @@ import { FormEvent } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Product } from "@/lib/types";
 
-export default function AddProductPage({ params }: { params: { id: string } }) {
+export default function AddProductPage() {
   const router = useRouter()
   const { addProduct } = useSellers()
   const { user } = useAuthContext()
@@ -41,7 +42,7 @@ export default function AddProductPage({ params }: { params: { id: string } }) {
     router.push('/seller/dashboard');
   };
   
-  if (user?.id !== params.id) {
+  if (!user || user.type !== 'seller') {
     return <p>Accès non autorisé.</p>
   }
 
@@ -93,3 +94,4 @@ export default function AddProductPage({ params }: { params: { id: string } }) {
     </div>
   )
 }
+

@@ -1,3 +1,4 @@
+
 "use client";
 import Link from "next/link";
 import {
@@ -83,7 +84,7 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
             </CardDescription>
           </div>
           <Button asChild>
-            <Link href={`/seller/${user.id}/add-product`}>
+            <Link href={`/seller/add-product`}>
               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un produit
             </Link>
           </Button>
@@ -115,7 +116,7 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                          <Link href={`/seller/${user.id}/edit-product/${product.id}`}>Modifier</Link>
+                          <Link href={`/seller/edit-product/${product.id}`}>Modifier</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <AlertDialogTrigger asChild>
@@ -130,7 +131,7 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
               )) : (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center h-24">Vous n'avez aucun produit.
-                    <Link href={`/seller/${user.id}/add-product`} className="text-primary hover:underline font-bold ml-2">
+                    <Link href={`/seller/add-product`} className="text-primary hover:underline font-bold ml-2">
                       Commencez par en ajouter un !
                     </Link>
                   </TableCell>

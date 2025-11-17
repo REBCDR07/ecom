@@ -1,10 +1,11 @@
+
 "use client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { notFound, useRouter } from "next/navigation"
+import { notFound, useRouter, useParams } from "next/navigation"
 import { useSellers } from "@/hooks/use-sellers"
 import { useAuthContext } from "@/hooks/use-auth-provider"
 import { FormEvent, useEffect, useState } from "react"
@@ -12,8 +13,12 @@ import { Seller, Product } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
 
-export default function EditProductPage({ params }: { params: { id: string, productId: string } }) {
+export default function EditProductPage() {
   const router = useRouter()
+  const params = useParams();
+  const sellerId = Array.isArray(params.product) ? params.product[0] : undefined;
+  const productId = Array.isArray(params.product) ? params.product[1] : undefined;
+
   const { updateProduct } = useSellers()
   const { user } = useAuthContext()
   const { toast } = useToast()
@@ -21,11 +26,11 @@ export default function EditProductPage({ params }: { params: { id: string, prod
   const [product, setProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    if (params.id && typeof window !== 'undefined') {
+    if (sellerId && productId && typeof window !== 'undefined') {
         const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
-        const seller = approvedSellers.find(s => s.id === params.id);
+        const seller = approvedSellers.find(s => s.id === sellerId);
         if (seller) {
-            const foundProduct = seller.products?.find(p => p.id === params.productId);
+            const foundProduct = seller.products?.find(p => p.id === productId);
             if (foundProduct) {
                 setProduct(foundProduct);
             } else {
@@ -33,7 +38,7 @@ export default function EditProductPage({ params }: { params: { id: string, prod
             }
         }
     }
-  }, [params.id, params.productId]);
+  }, [sellerId, productId]);
 
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -64,7 +69,7 @@ export default function EditProductPage({ params }: { params: { id: string, prod
     return <p>Chargement du produit...</p>
   }
   
-  if (user?.id !== params.id) {
+  if (user?.id !== sellerId) {
     return <p>Accès non autorisé.</p>
   }
 
