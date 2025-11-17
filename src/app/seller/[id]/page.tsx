@@ -58,10 +58,9 @@ function ContactDialog({seller}: {seller: Seller}) {
 }
 
 
-export default function SellerProfilePage({ params }: { params: { id: string } }) {
+export default function SellerProfilePage({ params: { id } }: { params: { id: string } }) {
     const { getSellerById } = useSellers();
     const [seller, setSeller] = useState<Seller | null>(null);
-    const { id } = params;
 
      useEffect(() => {
         if (id) {
