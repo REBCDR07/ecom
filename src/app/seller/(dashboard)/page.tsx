@@ -281,7 +281,7 @@ export default function SellerDashboard() {
   }, [user, refreshSellerData]);
 
   if (!user || !seller) {
-    return <p>Chargement...</p>;
+    return <div className="p-8"><p>Chargement du tableau de bord...</p></div>;
   }
 
   return (
