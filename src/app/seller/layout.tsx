@@ -12,7 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { useAuth } from "@/hooks/use-auth"
+import { useAuthContext } from "@/hooks/use-auth-provider"
 import { useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 
@@ -28,11 +28,14 @@ export default function SellerLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthContext();
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
+    // We need to wait for the user state to be loaded from localStorage
+    if (user === undefined) return;
+
     if (user === null || user.type !== 'seller') {
         toast({
             variant: "destructive",
@@ -49,10 +52,10 @@ export default function SellerLayout({
     router.push('/login');
   }
 
-  // Render nothing or a loading state until the check is complete
-  if (!user || user.type !== 'seller') {
+  // Render a loading state until the auth check is complete
+  if (user === undefined || user === null || user.type !== 'seller') {
       return (
-          <div className="flex min-h-screen items-center justify-center">
+          <div className="flex min-h-[calc(100vh-57px)] items-center justify-center">
               <p>Vérification de l'authentification...</p>
           </div>
       )

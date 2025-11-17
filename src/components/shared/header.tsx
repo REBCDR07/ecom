@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from '../ui/badge';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuthContext } from '@/hooks/use-auth-provider';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -79,7 +79,7 @@ function NotificationsPopover() {
 }
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthContext();
   const { toast } = useToast();
   const router = useRouter();
   

@@ -121,6 +121,19 @@ function BuyerRegisterForm() {
 function SellerRegisterForm() {
     const form = useForm<SellerFormValues>({
       resolver: zodResolver(sellerSchema),
+      defaultValues: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        whatsapp: '',
+        companyName: '',
+        address: '',
+        activity: '',
+        whyPlatform: '',
+        password: '',
+        confirmPassword: ''
+      }
     });
     const { addPendingSeller } = useSellers();
     const { toast } = useToast();

@@ -10,13 +10,13 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuthContext } from '@/hooks/use-auth-provider';
 import { FormEvent, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login } = useAuthContext();
   const { toast } = useToast();
   const router = useRouter();
   const [email, setEmail] = useState('');

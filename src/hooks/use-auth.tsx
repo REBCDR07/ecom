@@ -6,23 +6,29 @@ import { useState, useEffect, useCallback } from 'react';
 const AUTH_KEY = 'marketconnect_auth';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  // undefined means we haven't checked localStorage yet
+  const [user, setUser] = useState<User | null | undefined>(undefined);
 
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem(AUTH_KEY);
       if (storedUser) {
         setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null); // No user in storage
       }
     } catch (error) {
       console.error("Failed to parse auth user from localStorage", error);
       localStorage.removeItem(AUTH_KEY);
+      setUser(null); // Set to null on error
     }
   }, []);
 
   const login = useCallback((email: string, password?: string): User | null => {
     try {
-      const approvedSellers = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
+      if (typeof window === 'undefined') return null;
+
+      const approvedSellers: User[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
       // In a real app, you'd also check buyers.
       // const buyers = JSON.parse(localStorage.getItem('buyers') || '[]');
       
@@ -44,6 +50,7 @@ export const useAuth = () => {
   }, []);
 
   const logout = useCallback(() => {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem(AUTH_KEY);
     setUser(null);
   }, []);

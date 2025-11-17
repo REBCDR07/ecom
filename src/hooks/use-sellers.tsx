@@ -2,13 +2,10 @@
 
 import { Seller, SellerApplication } from '@/lib/types';
 import { useCallback } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 const PENDING_SELLERS_KEY = 'pending_sellers';
 const APPROVED_SELLERS_KEY = 'approved_sellers';
 
-// Mock uuid for client-side rendering
-const mockUuid = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 export const useSellers = () => {
     
@@ -36,11 +33,11 @@ export const useSellers = () => {
         return getFromStorage(PENDING_SELLERS_KEY);
     }, [getFromStorage]);
 
-    const addPendingSeller = useCallback((sellerData: Omit<SellerApplication, 'id' | 'submissionDate' | 'status'>) => {
+    const addPendingSeller = useCallback((sellerData: Omit<SellerApplication, 'id' | 'submissionDate' | 'status' | 'type'>) => {
         const pendingSellers = getPendingSellers();
         const newSellerApplication: SellerApplication = {
             ...sellerData,
-            id: mockUuid(),
+            id: crypto.randomUUID(),
             submissionDate: new Date().toISOString(),
             status: 'pending',
             type: 'seller'

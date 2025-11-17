@@ -25,7 +25,7 @@ import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { useSellers } from "@/hooks/use-sellers";
 import { useToast } from "@/hooks/use-toast";
 import { SellerApplication } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 const salesData = [
   { month: "Jan", sales: 850000 },
@@ -63,14 +63,18 @@ export default function AdminDashboard() {
   const [pendingSellers, setPendingSellers] = useState<SellerApplication[]>([]);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const refreshPendingSellers = useCallback(() => {
     setPendingSellers(getPendingSellers());
   }, [getPendingSellers]);
+
+  useEffect(() => {
+    refreshPendingSellers();
+  }, [refreshPendingSellers]);
 
 
   const handleApprove = (id: string) => {
     approveSeller(id);
-    setPendingSellers(getPendingSellers());
+    refreshPendingSellers();
     toast({
         title: 'Vendeur approuvé',
         description: 'Le vendeur peut maintenant se connecter et utiliser la plateforme.',
@@ -79,7 +83,7 @@ export default function AdminDashboard() {
 
   const handleReject = (id: string) => {
     rejectSeller(id);
-    setPendingSellers(getPendingSellers());
+    refreshPendingSellers();
      toast({
         variant: 'destructive',
         title: 'Vendeur rejeté',
