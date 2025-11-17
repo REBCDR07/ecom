@@ -61,17 +61,18 @@ function ContactDialog({seller}: {seller: Seller}) {
 export default function SellerProfilePage({ params }: { params: { id: string } }) {
     const { getSellerById } = useSellers();
     const [seller, setSeller] = useState<Seller | null>(null);
+    const { id } = params;
 
      useEffect(() => {
-        if (params.id) {
-            const sellerData = getSellerById(params.id);
+        if (id) {
+            const sellerData = getSellerById(id);
             if (sellerData) {
                 setSeller(sellerData);
             } else {
                 notFound();
             }
         }
-    }, [params.id, getSellerById]);
+    }, [id, getSellerById]);
 
     if (!seller) {
         return <p>Chargement du profil...</p>;
