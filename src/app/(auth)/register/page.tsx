@@ -64,16 +64,20 @@ function SellerRegisterForm() {
         <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
                 <Label htmlFor="phone">Numéro MTN</Label>
-                <Input id="phone" type="tel" required />
+                <Input id="phone" type="tel" required placeholder="ex: 97000000"/>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="whatsapp">Numéro WhatsApp</Label>
-                <Input id="whatsapp" type="tel" required />
+                <Input id="whatsapp" type="tel" required placeholder="ex: 97000000"/>
             </div>
         </div>
         <div className="space-y-2">
             <Label htmlFor="company-name">Nom de l'entreprise</Label>
             <Input id="company-name" required />
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="address">Adresse & Lien Google Maps</Label>
+            <Input id="address" placeholder="ex: Rue 123, Cotonou" required />
         </div>
         <div className="space-y-2">
             <Label htmlFor="activity">Activités de vente</Label>

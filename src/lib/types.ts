@@ -15,3 +15,11 @@ export type Seller = {
   profilePicture: string;
   imageHint: string;
 };
+
+export type SellerProduct = {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  sales: number;
+}

@@ -2,15 +2,72 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Check, X } from "lucide-react";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+
+const salesData = [
+  { month: "Jan", sales: 850000 },
+  { month: "Fév", sales: 980000 },
+  { month: "Mar", sales: 1100000 },
+  { month: "Avr", sales: 1250000 },
+];
+const salesChartConfig = {
+  sales: {
+    label: "Ventes",
+    color: "hsl(var(--primary))",
+  },
+} 
+
+const signupsData = [
+  { month: "Jan", clients: 25, vendeurs: 5 },
+  { month: "Fév", clients: 30, vendeurs: 8 },
+  { month: "Mar", clients: 45, vendeurs: 4 },
+  { month: "Avr", clients: 52, vendeurs: 7 },
+];
+
+const signupsChartConfig = {
+  clients: {
+    label: "Clients",
+    color: "hsl(var(--chart-1))",
+  },
+  vendeurs: {
+    label: "Vendeurs",
+    color: "hsl(var(--chart-2))",
+  },
+}
+
+const pendingSellers = [
+    { id: 'seller_6', name: 'Koko Pâtisserie', date: '2024-07-20' },
+    { id: 'seller_7', name: 'Mode Chic', date: '2024-07-19' },
+    { id: 'seller_8', name: 'Agro Benin', date: '2024-07-19' },
+    { id: 'seller_9', name: 'Délices de grand-mère', date: '2024-07-18' },
+    { id: 'seller_10', name: 'Art & Culture', date: '2024-07-17' },
+]
 
 export default function AdminDashboard() {
 
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
-        <h2 className="text-3xl font-bold tracking-tight">Tableau de bord</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Tableau de bord Administrateur</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -19,7 +76,7 @@ export default function AdminDashboard() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">5</div>
+                    <div className="text-2xl font-bold">{pendingSellers.length}</div>
                     <p className="text-xs text-muted-foreground">
                         Nouvelles demandes d'inscription
                     </p>
@@ -68,25 +125,89 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Card>
                  <CardHeader>
-                    <CardTitle>Évolution des inscriptions</CardTitle>
+                    <CardTitle>Évolution des ventes</CardTitle>
+                    <CardDescription>Ventes des 4 derniers mois.</CardDescription>
                 </CardHeader>
                 <CardContent className="pl-2">
-                    <p className="text-center text-muted-foreground p-8">
-                        Graphique des inscriptions à venir
-                    </p>
+                    <ChartContainer config={salesChartConfig} className="h-[250px] w-full">
+                        <BarChart accessibilityLayer data={salesData}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                                dataKey="month"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
+                            />
+                            <ChartTooltip
+                                content={<ChartTooltipContent />}
+                                cursor={false}
+                            />
+                            <Bar dataKey="sales" fill="var(--color-sales)" radius={8} />
+                        </BarChart>
+                    </ChartContainer>
                 </CardContent>
             </Card>
             <Card>
                  <CardHeader>
-                    <CardTitle>Évolution des ventes</CardTitle>
+                    <CardTitle>Évolution des inscriptions</CardTitle>
+                    <CardDescription>Inscriptions des 4 derniers mois.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                     <p className="text-center text-muted-foreground p-8">
-                        Graphique des ventes à venir
-                    </p>
+                <CardContent  className="pl-2">
+                     <ChartContainer config={signupsChartConfig} className="h-[250px] w-full">
+                        <BarChart accessibilityLayer data={signupsData}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                                dataKey="month"
+                                tickLine={false}
+                                tickMargin={10}
+                                axisLine={false}
+                            />
+                            <ChartTooltip
+                                content={<ChartTooltipContent />}
+                                cursor={false}
+                            />
+                            <Bar dataKey="clients" fill="var(--color-clients)" radius={4} />
+                            <Bar dataKey="vendeurs" fill="var(--color-vendeurs)" radius={4} />
+                        </BarChart>
+                    </ChartContainer>
                 </CardContent>
             </Card>
         </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Demandes d'inscription des vendeurs</CardTitle>
+                <CardDescription>
+                    Approuvez ou rejetez les nouvelles demandes de vendeurs.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead>Nom de l'entreprise</TableHead>
+                        <TableHead>Date de demande</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {pendingSellers.map((seller) => (
+                        <TableRow key={seller.id}>
+                            <TableCell className="font-medium">{seller.name}</TableCell>
+                            <TableCell>{seller.date}</TableCell>
+                            <TableCell className="text-right">
+                                <Button variant="outline" size="icon" className="mr-2 h-8 w-8 bg-green-500 hover:bg-green-600 text-white">
+                                    <Check className="h-4 w-4" />
+                                </Button>
+                                <Button variant="destructive" size="icon" className="h-8 w-8">
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
     </div>
   );
 }

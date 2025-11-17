@@ -1,16 +1,22 @@
 import type { Metadata } from 'next';
-import { PT_Sans } from 'next/font/google';
+import { Montserrat, Roboto } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/shared/header';
 import { Footer } from '@/components/shared/footer';
 import { cn } from '@/lib/utils';
 
-const ptSans = PT_Sans({
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['800'],
+  variable: '--font-heading',
+});
+
+const roboto = Roboto({
   subsets: ['latin'],
   weight: ['400', '700'],
-  variable: '--font-sans',
-});
+  variable: '--font-body',
+})
 
 export const metadata: Metadata = {
   title: 'MarketConnect - Votre marché en ligne',
@@ -27,7 +33,8 @@ export default function RootLayout({
       <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased',
-          ptSans.variable
+          montserrat.variable,
+          roboto.variable
         )}
       >
         <div className="relative flex min-h-dvh flex-col bg-background">

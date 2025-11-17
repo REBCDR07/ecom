@@ -91,3 +91,28 @@ export const topSellers: Seller[] = [
     imageHint: 'portrait entrepreneur',
   },
 ];
+
+
+export const sellerDashboardData = {
+  products: [
+    {
+      id: 'prod_1',
+      name: 'Bijoux faits main',
+      price: 15000,
+      stock: 25,
+      sales: 120,
+    },
+    {
+      id: 'prod_5',
+      name: 'Poterie artisanale',
+      price: 12000,
+      stock: 40,
+      sales: 85,
+    },
+  ],
+  stats: {
+    totalSales: '4,575,000 F CFA',
+    totalOrders: 205,
+    conversionRate: '5.2%',
+  }
+}

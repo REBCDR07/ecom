@@ -21,31 +21,62 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ProductCard } from '@/components/product-card';
 import { featuredProducts, topSellers } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
-  const heroImage =
-    'https://picsum.photos/seed/market-hero/1600/900';
+  const heroImages = [
+    {
+      src: 'https://picsum.photos/seed/market-hero-1/1600/900',
+      alt: 'Marché animé avec des étals colorés',
+      hint: 'vibrant market',
+    },
+    {
+      src: 'https://picsum.photos/seed/market-hero-2/1600/900',
+      alt: 'Artisanat local exposé sur un stand',
+      hint: 'local crafts',
+    },
+    {
+      src: 'https://picsum.photos/seed/market-hero-3/1600/900',
+      alt: 'Gros plan sur des épices et des produits frais',
+      hint: 'fresh produce',
+    },
+  ];
 
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] w-full text-white">
-        <Image
-          src={heroImage}
-          alt="Marché animé"
-          data-ai-hint="market stall"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/50" />
+       <section className="relative h-[70vh] w-full text-white">
+        <Carousel
+          opts={{ loop: true }}
+          className="w-full h-full"
+          plugins={[
+            // Autoplay({
+            //   delay: 5000,
+            // }),
+          ]}
+        >
+          <CarouselContent className="h-full">
+            {heroImages.map((image, index) => (
+              <CarouselItem key={index} className="h-full">
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  data-ai-hint={image.hint}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+        <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10 flex h-full flex-col items-center justify-center text-center p-4">
-          <h1 className="text-4xl md:text-6xl font-bold text-primary tracking-tight">
+          <h1 className="text-primary">
             MarketConnect
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-200">
-            La plateforme qui connecte les meilleurs vendeurs du Bénin avec des
-            acheteurs passionnés.
+            La première place de marché qui révèle le talent des artisans et vendeurs du Bénin. Découvrez, achetez et soutenez l'économie locale.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
@@ -57,100 +88,40 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* How It Works Section */}
+      
+      {/* Why Us Section */}
       <section className="py-16 lg:py-24 bg-card">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Comment ça marche ?
+          <h2 className="text-center mb-12">
+            Pourquoi choisir MarketConnect ?
           </h2>
-          <div className="grid md:grid-cols-2 gap-16">
-            {/* For Sellers */}
-            <div className="space-y-8">
-              <h3 className="text-2xl font-semibold flex items-center gap-3">
-                <Store className="text-accent" />
-                Pour les Vendeurs
-              </h3>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 bg-accent text-accent-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">
-                  1
-                </div>
-                <div>
-                  <h4 className="font-semibold">Créez votre boutique</h4>
-                  <p className="text-muted-foreground">
-                    Inscrivez-vous en quelques minutes et personnalisez votre
-                    profil pour attirer les clients.
-                  </p>
-                </div>
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div className="flex flex-col items-center">
+              <div className="bg-primary/20 p-4 rounded-full mb-4">
+                <Store className="h-8 w-8 text-primary" />
               </div>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 bg-accent text-accent-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">
-                  2
-                </div>
-                <div>
-                  <h4 className="font-semibold">Ajoutez vos produits</h4>
-                  <p className="text-muted-foreground">
-                    Mettez en vente vos articles avec des photos et des
-                    descriptions attrayantes.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 bg-accent text-accent-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">
-                  3
-                </div>
-                <div>
-                  <h4 className="font-semibold">Vendez et prospérez</h4>
-                  <p className="text-muted-foreground">
-                    Gérez vos commandes, communiquez avec vos clients et suivez
-                    vos ventes facilement.
-                  </p>
-                </div>
-              </div>
+              <h3 className="mb-2">Visibilité Accrue</h3>
+              <p className="text-muted-foreground">
+                Exposez vos produits à des milliers d'acheteurs potentiels à travers le Bénin et au-delà.
+              </p>
             </div>
-
-            {/* For Buyers */}
-            <div className="space-y-8">
-              <h3 className="text-2xl font-semibold flex items-center gap-3">
-                <ShoppingBag className="text-primary" />
-                Pour les Acheteurs
-              </h3>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">
-                  1
-                </div>
-                <div>
-                  <h4 className="font-semibold">Découvrez des trésors</h4>
-                  <p className="text-muted-foreground">
-                    Explorez des milliers de produits uniques proposés par des
-                    vendeurs locaux.
-                  </p>
-                </div>
+             <div className="flex flex-col items-center">
+              <div className="bg-accent/20 p-4 rounded-full mb-4">
+                <Wallet className="h-8 w-8 text-accent" />
               </div>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">
-                  2
-                </div>
-                <div>
-                  <h4 className="font-semibold">Commandez facilement</h4>
-                  <p className="text-muted-foreground">
-                    Payez en toute sécurité avec MTN Mobile Money en quelques
-                    clics.
-                  </p>
-                </div>
+              <h3 className="mb-2">Paiements Simplifiés</h3>
+              <p className="text-muted-foreground">
+                Recevez vos paiements directement et en toute sécurité via MTN Mobile Money, sans tracas.
+              </p>
+            </div>
+             <div className="flex flex-col items-center">
+              <div className="bg-primary/20 p-4 rounded-full mb-4">
+                <ShoppingBag className="h-8 w-8 text-primary" />
               </div>
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">
-                  3
-                </div>
-                <div>
-                  <h4 className="font-semibold">Recevez votre commande</h4>
-                  <p className="text-muted-foreground">
-                    Contactez directement le vendeur via WhatsApp pour
-                    coordonner la livraison.
-                  </p>
-                </div>
-              </div>
+              <h3 className="mb-2">Soutien aux Artisans</h3>
+              <p className="text-muted-foreground">
+                Chaque achat est un soutien direct à l'économie locale et au savoir-faire de nos talentueux vendeurs.
+              </p>
             </div>
           </div>
         </div>
@@ -159,7 +130,7 @@ export default function Home() {
       {/* Featured Products Section */}
       <section id="featured-products" className="py-16 lg:py-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-center mb-12">
             Produits à la une
           </h2>
           <Carousel
@@ -190,12 +161,12 @@ export default function Home() {
       {/* Top Sellers Section */}
       <section className="py-16 lg:py-24 bg-card">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
+          <h2 className="text-center mb-12">
             Nos meilleurs vendeurs
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8">
             {topSellers.map((seller) => (
-              <Link href="#" key={seller.id}>
+              <Link href={`/seller/${seller.id}`} key={seller.id}>
                 <Card className="overflow-hidden text-center hover:shadow-lg transition-shadow">
                   <CardContent className="p-4 flex flex-col items-center gap-2">
                     <Avatar className="h-20 w-20 border-2 border-primary">
