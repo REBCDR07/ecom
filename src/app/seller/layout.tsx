@@ -1,23 +1,20 @@
 "use client"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Bell,
   Home,
+  LogOut,
   Package,
   Settings,
   Users,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/hooks/use-auth"
+import { useEffect } from "react"
+import { useToast } from "@/hooks/use-toast"
 
 const navItems = [
     { href: "/seller/dashboard", icon: Home, label: "Tableau de bord" },
@@ -31,6 +28,36 @@ export default function SellerLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (user === null || user.type !== 'seller') {
+        toast({
+            variant: "destructive",
+            title: "Accès non autorisé",
+            description: "Vous devez être connecté en tant que vendeur pour accéder à cette page.",
+        })
+        router.replace('/login');
+    }
+  }, [user, router, toast]);
+
+  const handleLogout = () => {
+    logout();
+    toast({ title: "Vous avez été déconnecté."})
+    router.push('/login');
+  }
+
+  // Render nothing or a loading state until the check is complete
+  if (!user || user.type !== 'seller') {
+      return (
+          <div className="flex min-h-screen items-center justify-center">
+              <p>Vérification de l'authentification...</p>
+          </div>
+      )
+  }
+
 
   return (
     <div className="grid min-h-[calc(100vh-57px)] w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -57,6 +84,12 @@ export default function SellerLayout({
               </Link>
              ))}
             </nav>
+          </div>
+          <div className="mt-auto p-4">
+            <Button size="sm" variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Déconnexion
+            </Button>
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/shared/header';
 import { Footer } from '@/components/shared/footer';
 import { cn } from '@/lib/utils';
+import { AuthProvider } from '@/hooks/use-auth-provider';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -37,12 +38,14 @@ export default function RootLayout({
           roboto.variable
         )}
       >
-        <div className="relative flex min-h-dvh flex-col bg-background">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
-        <Toaster />
+        <AuthProvider>
+            <div className="relative flex min-h-dvh flex-col bg-background">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            </div>
+            <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

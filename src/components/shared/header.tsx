@@ -1,13 +1,17 @@
+"use client";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Store, Bell } from 'lucide-react';
+import { Menu, Store, Bell, LogOut } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from '../ui/badge';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const navLinks = [
   { href: '/', label: 'Accueil' },
@@ -75,6 +79,16 @@ function NotificationsPopover() {
 }
 
 export function Header() {
+  const { user, logout } = useAuth();
+  const { toast } = useToast();
+  const router = useRouter();
+  
+  const handleLogout = () => {
+    logout();
+    toast({ title: 'Vous avez été déconnecté.' });
+    router.push('/login');
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -132,13 +146,30 @@ export function Header() {
             {/* Can add search bar here later */}
           </div>
           <nav className="flex items-center">
-             <NotificationsPopover />
-            <Button variant="ghost" asChild size="sm">
-                <Link href="/admin/login">Accès Admin</Link>
-            </Button>
-            <Button asChild size="sm">
-                <Link href="/login">Connexion</Link>
-            </Button>
+            {user && <NotificationsPopover />}
+            
+            {user ? (
+              <>
+                 {user.type === 'seller' && (
+                    <Button variant="ghost" asChild size="sm">
+                      <Link href="/seller/dashboard">Tableau de bord</Link>
+                    </Button>
+                 )}
+                <Button variant="ghost" onClick={handleLogout} size="sm">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Déconnexion
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild size="sm">
+                    <Link href="/admin/login">Accès Admin</Link>
+                </Button>
+                <Button asChild size="sm">
+                    <Link href="/login">Connexion</Link>
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       </div>

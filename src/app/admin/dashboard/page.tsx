@@ -14,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Check, X } from "lucide-react";
 import {
@@ -23,6 +22,10 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { useSellers } from "@/hooks/use-sellers";
+import { useToast } from "@/hooks/use-toast";
+import { SellerApplication } from "@/lib/types";
+import { useEffect, useState } from "react";
 
 const salesData = [
   { month: "Jan", sales: 850000 },
@@ -55,15 +58,35 @@ const signupsChartConfig = {
   },
 }
 
-const pendingSellers = [
-    { id: 'seller_6', name: 'Koko Pâtisserie', date: '2024-07-20' },
-    { id: 'seller_7', name: 'Mode Chic', date: '2024-07-19' },
-    { id: 'seller_8', name: 'Agro Benin', date: '2024-07-19' },
-    { id: 'seller_9', name: 'Délices de grand-mère', date: '2024-07-18' },
-    { id: 'seller_10', name: 'Art & Culture', date: '2024-07-17' },
-]
-
 export default function AdminDashboard() {
+  const { getPendingSellers, approveSeller, rejectSeller } = useSellers();
+  const [pendingSellers, setPendingSellers] = useState<SellerApplication[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    setPendingSellers(getPendingSellers());
+  }, [getPendingSellers]);
+
+
+  const handleApprove = (id: string) => {
+    approveSeller(id);
+    setPendingSellers(getPendingSellers());
+    toast({
+        title: 'Vendeur approuvé',
+        description: 'Le vendeur peut maintenant se connecter et utiliser la plateforme.',
+    });
+  }
+
+  const handleReject = (id: string) => {
+    rejectSeller(id);
+    setPendingSellers(getPendingSellers());
+     toast({
+        variant: 'destructive',
+        title: 'Vendeur rejeté',
+        description: 'La demande du vendeur a été rejetée et supprimée.',
+    });
+  }
+
 
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
@@ -190,20 +213,26 @@ export default function AdminDashboard() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {pendingSellers.map((seller) => (
-                        <TableRow key={seller.id}>
-                            <TableCell className="font-medium">{seller.name}</TableCell>
-                            <TableCell>{seller.date}</TableCell>
-                            <TableCell className="text-right">
-                                <Button variant="outline" size="icon" className="mr-2 h-8 w-8 bg-green-500 hover:bg-green-600 text-white">
-                                    <Check className="h-4 w-4" />
-                                </Button>
-                                <Button variant="destructive" size="icon" className="h-8 w-8">
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            </TableCell>
-                        </TableRow>
-                        ))}
+                        {pendingSellers.length > 0 ? (
+                            pendingSellers.map((seller) => (
+                            <TableRow key={seller.id}>
+                                <TableCell className="font-medium">{seller.companyName}</TableCell>
+                                <TableCell>{new Date(seller.submissionDate).toLocaleDateString('fr-FR')}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="outline" size="icon" className="mr-2 h-8 w-8 bg-green-500 hover:bg-green-600 text-white" onClick={() => handleApprove(seller.id)}>
+                                        <Check className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => handleReject(seller.id)}>
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={3} className="text-center">Aucune demande en attente.</TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </CardContent>
