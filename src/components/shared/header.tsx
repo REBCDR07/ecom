@@ -3,80 +3,17 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Store, Bell, LogOut, LayoutDashboard } from 'lucide-react';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Badge } from '../ui/badge';
+import { Menu, Store, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuthContext } from '@/hooks/use-auth-provider';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import NotificationsPopover from './notifications-popover';
 
 const navLinks = [
   { href: '/', label: 'Accueil' },
   { href: '/products', label: 'Produits' },
   { href: '/sellers', label: 'Vendeurs' },
 ];
-
-const notifications = [
-    {
-        title: "Nouvelle vente!",
-        description: "Votre produit 'Bijoux faits main' a été vendu.",
-    },
-    {
-        title: "Vendeur approuvé",
-        description: "Félicitations, votre boutique est maintenant en ligne!",
-    },
-    {
-        title: "Nouveau message",
-        description: "Un client vous a posé une question sur le 'Sac en cuir'.",
-    },
-];
-
-function NotificationsPopover() {
-    return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <Badge className="absolute top-1 right-1 h-4 w-4 justify-center p-0 text-xs" variant="destructive">
-                        {notifications.length}
-                    </Badge>
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-                <div className="grid gap-4">
-                    <div className="space-y-2">
-                        <h4 className="font-medium leading-none">Notifications</h4>
-                        <p className="text-sm text-muted-foreground">
-                            Vos 3 dernières notifications.
-                        </p>
-                    </div>
-                    <div className="grid gap-2">
-                        {notifications.map((notification, index) => (
-                             <div
-                                key={index}
-                                className="grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0"
-                            >
-                                <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
-                                <div className="grid gap-1">
-                                <p className="text-sm font-medium leading-none">
-                                    {notification.title}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    {notification.description}
-                                </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </PopoverContent>
-        </Popover>
-    )
-}
 
 export function Header() {
   const { user, logout } = useAuthContext();
@@ -146,7 +83,7 @@ export function Header() {
             {/* Can add search bar here later */}
           </div>
           <nav className="flex items-center">
-            {user && user.type === 'seller' && <NotificationsPopover />}
+             {user && (user.type === 'seller' || user.type === 'admin') && <NotificationsPopover userType={user.type} />}
             
             {user ? (
               <>
@@ -161,6 +98,11 @@ export function Header() {
                             <LayoutDashboard className="mr-2 h-4 w-4" />
                             Mes commandes
                         </Link>
+                    </Button>
+                 )}
+                 {user.type === 'admin' && (
+                    <Button variant="ghost" asChild size="sm">
+                      <Link href="/admin/dashboard">Tableau de bord</Link>
                     </Button>
                  )}
                 <Button variant="ghost" onClick={handleLogout} size="sm">

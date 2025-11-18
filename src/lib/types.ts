@@ -1,4 +1,5 @@
 
+
 export type Product = {
   id: string;
   name: string;
@@ -73,4 +74,15 @@ export type SellerProduct = {
   price: number;
   stock: number;
   sales: number;
+}
+
+export type Notification = {
+    id: string;
+    userId?: string; // ID of the seller
+    userType: 'admin' | 'seller' | 'buyer'; // Target user type
+    type: 'new_order' | 'new_seller_application' | 'new_product';
+    message: string;
+    link: string;
+    timestamp: string;
+    isRead: boolean;
 }

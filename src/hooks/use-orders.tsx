@@ -1,11 +1,14 @@
+
 "use client";
 
 import { useCallback } from 'react';
 import { Order, Product, User } from '@/lib/types';
+import { useNotifications } from './use-notifications';
 
 const ORDERS_KEY = 'marketconnect_orders';
 
 export const useOrders = () => {
+    const { createNotification } = useNotifications();
 
     const getFromStorage = useCallback((key: string): any[] => {
         if (typeof window === 'undefined') return [];
@@ -43,7 +46,17 @@ export const useOrders = () => {
             status: 'pending',
         };
         saveToStorage(ORDERS_KEY, [...orders, newOrder]);
-    }, [getFromStorage, saveToStorage]);
+        
+        // Create a notification for the seller
+        createNotification({
+            userId: product.sellerId,
+            userType: 'seller',
+            type: 'new_order',
+            message: `Nouvelle commande pour : ${product.name}.`,
+            link: '/seller/dashboard'
+        });
+
+    }, [getFromStorage, saveToStorage, createNotification]);
 
     const getOrdersForSeller = useCallback((sellerId: string): Order[] => {
         const allOrders: Order[] = getFromStorage(ORDERS_KEY);

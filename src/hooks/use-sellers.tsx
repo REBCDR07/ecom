@@ -3,12 +3,14 @@
 
 import { Seller, SellerApplication, Product } from '@/lib/types';
 import { useCallback } from 'react';
+import { useNotifications } from './use-notifications';
 
 const PENDING_SELLERS_KEY = 'pending_sellers';
 const APPROVED_SELLERS_KEY = 'approved_sellers';
 
 
 export const useSellers = () => {
+    const { createNotification } = useNotifications();
     
     const getFromStorage = useCallback((key: string) => {
         if (typeof window === 'undefined') return [];
@@ -43,7 +45,14 @@ export const useSellers = () => {
             status: 'pending',
         };
         saveToStorage(PENDING_SELLERS_KEY, [...pendingSellers, newSellerApplication]);
-    }, [getPendingSellers, saveToStorage]);
+         // Create a notification for the admin
+        createNotification({
+            userType: 'admin',
+            type: 'new_seller_application',
+            message: `Nouvelle demande de vendeur: ${sellerData.companyName}.`,
+            link: '/admin/dashboard'
+        });
+    }, [getPendingSellers, saveToStorage, createNotification]);
 
     const approveSeller = useCallback((sellerId: string) => {
         const pendingSellers: SellerApplication[] = getFromStorage(PENDING_SELLERS_KEY);

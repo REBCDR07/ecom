@@ -19,6 +19,8 @@ import { useEffect, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { useOrders } from "@/hooks/use-orders"
+import NotificationsPopover from "@/components/shared/notifications-popover"
+import { Notification, useNotifications } from "@/hooks/use-notifications"
 
 export default function SellerLayout({
   children,
@@ -29,16 +31,19 @@ export default function SellerLayout({
   const { user, logout } = useAuthContext();
   const router = useRouter();
   const { toast } = useToast();
-  const { getOrdersForSeller } = useOrders();
+  const { getUnreadNotificationsForUser } = useNotifications();
 
   const [newOrdersCount, setNewOrdersCount] = useState(0);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   
   useEffect(() => {
     if (user && user.type === 'seller') {
-      const pendingOrders = getOrdersForSeller(user.id).filter(o => o.status === 'pending').length;
-      setNewOrdersCount(pendingOrders);
+      const unreadNotifications = getUnreadNotificationsForUser(user.id);
+      const orderNotifications = unreadNotifications.filter(n => n.type === 'new_order');
+      setNotifications(unreadNotifications);
+      setNewOrdersCount(orderNotifications.length);
     }
-  }, [user, getOrdersForSeller, pathname]); // Re-check on path change too
+  }, [user, getUnreadNotificationsForUser, pathname]); // Re-check on path change too
   
   const navItems = [
       { href: "/seller/dashboard", icon: Home, label: "Tableau de bord", badge: newOrdersCount > 0 ? newOrdersCount : undefined },
@@ -84,6 +89,9 @@ export default function SellerLayout({
               <Package className="h-6 w-6" />
               <span className="">Espace Vendeur</span>
             </Link>
+             <div className="ml-auto">
+                <NotificationsPopover userType="seller" />
+            </div>
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">

@@ -25,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManageAdminProfilePage from "./manage-profile/page";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/hooks/use-auth-provider";
+import NotificationsPopover from "@/components/shared/notifications-popover";
 
 function MainDashboard({
   pendingSellers,
@@ -190,10 +191,13 @@ export default function AdminDashboard() {
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <div className="flex items-center justify-between">
             <h2 className="text-3xl font-bold tracking-tight">Tableau de bord Administrateur</h2>
-            <Button variant="ghost" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Déconnexion
-            </Button>
+            <div className="flex items-center gap-2">
+                <NotificationsPopover userType="admin" />
+                <Button variant="ghost" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Déconnexion
+                </Button>
+            </div>
         </div>
         <Tabs defaultValue="dashboard">
           <TabsList>
