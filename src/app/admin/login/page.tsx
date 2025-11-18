@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,36 +17,30 @@ import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthContext } from '@/hooks/use-auth-provider';
 
-const ADMIN_PASSWORD_KEY = 'admin_password';
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const { login } = useAuthContext();
+  const { adminLogin } = useAuthContext();
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    // Set the admin password in localStorage if it's not already there.
-    if (typeof window !== 'undefined' && !localStorage.getItem(ADMIN_PASSWORD_KEY)) {
-      localStorage.setItem(ADMIN_PASSWORD_KEY, 'BeninShell@2025');
-    }
-  }, []);
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
-    
-    if (password === storedPassword) {
-      // Use the login function to set an admin user type
-      login('admin', password, true);
+    if (!adminLogin) return;
+    setIsLoading(true);
+
+    try {
+      await adminLogin(password);
       router.push('/admin/dashboard');
-    } else {
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Accès refusé',
-        description: 'Le mot de passe est incorrect.',
+        description: error.message || 'Le mot de passe est incorrect.',
       });
+      setIsLoading(false);
     }
   };
 
@@ -86,8 +81,8 @@ export default function AdminLoginPage() {
                   </button>
                 </div>
             </div>
-            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                Connexion
+            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
+                {isLoading ? "Connexion..." : "Connexion"}
             </Button>
             </form>
         </CardContent>
@@ -95,3 +90,5 @@ export default function AdminLoginPage() {
     </div>
   );
 }
+
+    

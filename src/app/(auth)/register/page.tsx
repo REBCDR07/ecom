@@ -17,12 +17,13 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useSellers } from '@/hooks/use-sellers';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { User, SellerApplication } from '@/lib/types';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuthContext } from '@/hooks/use-auth-provider';
+import { doc, setDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase/provider';
 
 const buyerSchema = z.object({
   firstName: z.string().min(1, "Le prénom est requis"),
@@ -66,26 +67,38 @@ function BuyerRegisterForm() {
 
   const { toast } = useToast();
   const router = useRouter();
+  const { signUp } = useAuthContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit: SubmitHandler<BuyerFormValues> = (data) => {
-    const buyers: User[] = JSON.parse(localStorage.getItem('buyers') || '[]');
-    const newBuyer: User = {
-      id: crypto.randomUUID(),
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      password: data.password,
-      type: 'buyer',
-    };
-    localStorage.setItem('buyers', JSON.stringify([...buyers, newBuyer]));
-    
-    toast({
-      title: "Compte client créé !",
-      description: "Vous pouvez maintenant vous connecter.",
-    });
-    router.push('/login');
+
+  const onSubmit: SubmitHandler<BuyerFormValues> = async (data) => {
+    if(!signUp) return;
+    setIsSubmitting(true);
+    try {
+      const userCredential = await signUp(data.email, data.password, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: 'buyer'
+      });
+      
+      if(userCredential?.user) {
+        toast({
+          title: "Compte client créé !",
+          description: "Vous pouvez maintenant vous connecter.",
+        });
+        router.push('/login');
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erreur d'inscription",
+        description: error.message,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -142,8 +155,8 @@ function BuyerRegisterForm() {
             <FormMessage />
           </FormItem>
         )} />
-        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-          Créer un compte client
+        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isSubmitting}>
+          {isSubmitting ? "Création..." : "Créer un compte client"}
         </Button>
       </form>
     </Form>
@@ -160,6 +173,7 @@ const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) 
 
 
 function SellerRegisterForm() {
+    const firestore = useFirestore();
     const form = useForm<SellerFormValues>({
       resolver: zodResolver(sellerSchema),
       defaultValues: {
@@ -176,7 +190,6 @@ function SellerRegisterForm() {
         confirmPassword: ''
       }
     });
-    const { addPendingSeller } = useSellers();
     const { toast } = useToast();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -185,7 +198,7 @@ function SellerRegisterForm() {
 
 
     const onSubmit: SubmitHandler<SellerFormValues> = async (data) => {
-        if (isSubmitting) return;
+        if (isSubmitting || !firestore) return;
         setIsSubmitting(true);
 
         const profilePicFile = form.getValues('profilePicture');
@@ -195,34 +208,35 @@ function SellerRegisterForm() {
         let bannerPictureUrl = '';
 
         try {
-            if (profilePicFile) {
-                profilePictureUrl = await toBase64(profilePicFile);
-            }
-             if (bannerPicFile) {
-                bannerPictureUrl = await toBase64(bannerPicFile);
-            }
-        } catch (error) {
+            if (profilePicFile) profilePictureUrl = await toBase64(profilePicFile);
+            if (bannerPicFile) bannerPictureUrl = await toBase64(bannerPicFile);
+
+            const { confirmPassword, ...applicationData } = data;
+            
+            const newAppRef = doc(firestore, 'seller_applications', `app_${crypto.randomUUID()}`);
+            await setDoc(newAppRef, {
+                ...applicationData,
+                profilePicture: profilePictureUrl,
+                bannerPicture: bannerPictureUrl,
+                submissionDate: new Date().toISOString(),
+                status: 'pending',
+            });
+            
+            toast({
+                title: "Demande soumise !",
+                description: "Votre demande d'inscription a été envoyée. Elle sera examinée par un administrateur.",
+            });
+            router.push('/');
+
+        } catch (error: any) {
              toast({
                 variant: "destructive",
-                title: "Erreur d'image",
-                description: "Impossible de traiter un des fichiers image.",
+                title: "Erreur de soumission",
+                description: error.message || "Une erreur est survenue.",
             });
-            setIsSubmitting(false);
-            return;
+        } finally {
+             setIsSubmitting(false);
         }
-
-        const sellerApplicationData: Omit<SellerApplication, 'id' | 'submissionDate' | 'status' | 'type'> & { profilePicture: string, bannerPicture: string } = {
-          ...data,
-          profilePicture: profilePictureUrl,
-          bannerPicture: bannerPictureUrl
-        };
-        
-        addPendingSeller(sellerApplicationData);
-        toast({
-            title: "Demande soumise !",
-            description: "Votre demande d'inscription a été envoyée. Elle sera examinée par un administrateur.",
-        });
-        router.push('/');
     };
 
     return (
@@ -344,3 +358,5 @@ export default function RegisterPage() {
     </Card>
   );
 }
+
+    

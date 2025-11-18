@@ -16,14 +16,19 @@ const navLinks = [
 ];
 
 export function Header() {
-  const { user, logout } = useAuthContext();
+  const { user, signOut } = useAuthContext();
   const { toast } = useToast();
   const router = useRouter();
   
-  const handleLogout = () => {
-    logout();
-    toast({ title: 'Vous avez été déconnecté.' });
-    router.push('/login');
+  const handleLogout = async () => {
+    if (!signOut) return;
+    try {
+      await signOut();
+      toast({ title: 'Vous avez été déconnecté.' });
+      router.push('/login');
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Erreur de déconnexion', description: error.message });
+    }
   };
 
   return (
@@ -83,16 +88,16 @@ export function Header() {
             {/* Can add search bar here later */}
           </div>
           <nav className="flex items-center">
-             {user && (user.type === 'seller' || user.type === 'admin') && <NotificationsPopover userType={user.type} />}
+             {user && (user.role === 'seller' || user.role === 'admin') && <NotificationsPopover userType={user.role} />}
             
             {user ? (
               <>
-                 {user.type === 'seller' && (
+                 {user.role === 'seller' && (
                     <Button variant="ghost" asChild size="sm">
                       <Link href="/seller/dashboard">Tableau de bord</Link>
                     </Button>
                  )}
-                 {user.type === 'buyer' && (
+                 {user.role === 'buyer' && (
                     <Button variant="ghost" asChild size="sm">
                         <Link href="/buyer/dashboard">
                             <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -100,7 +105,7 @@ export function Header() {
                         </Link>
                     </Button>
                  )}
-                 {user.type === 'admin' && (
+                 {user.role === 'admin' && (
                     <Button variant="ghost" asChild size="sm">
                       <Link href="/admin/dashboard">Tableau de bord</Link>
                     </Button>
@@ -126,3 +131,5 @@ export function Header() {
     </header>
   );
 }
+
+    

@@ -13,12 +13,17 @@ export type Product = {
 };
 
 export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
+  uid: string;
   email: string;
+  displayName?: string;
+  photoURL?: string;
+  role: 'seller' | 'buyer' | 'admin';
+  // Below are properties from the old system, can be phased out
+  id?: string;
+  firstName?: string;
+  lastName?: string;
   password?: string; // Insecure, for demo only
-  type: 'seller' | 'buyer' | 'admin';
+  type?: 'seller' | 'buyer' | 'admin';
 }
 
 export interface AdminProfile {
@@ -30,7 +35,8 @@ export interface AdminProfile {
     bio?: string;
 }
 
-export interface Seller extends User {
+export interface Seller extends Omit<User, 'role'> {
+  role: 'seller';
   companyName: string;
   profilePicture: string;
   bannerPicture: string;
@@ -38,11 +44,11 @@ export interface Seller extends User {
   phone: string;
   whatsapp: string;
   address: string;
-  type: 'seller';
   products?: Product[];
 }
 
-export interface SellerApplication extends Omit<Seller, 'imageHint' | 'products' | 'type'> {
+export interface SellerApplication extends Omit<Seller, 'imageHint' | 'products' | 'role' | 'uid'> {
+  id: string;
   activity: string;
   whyPlatform: string;
   submissionDate: string;
@@ -86,3 +92,5 @@ export type Notification = {
     timestamp: string;
     isRead: boolean;
 }
+
+    

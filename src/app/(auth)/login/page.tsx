@@ -1,3 +1,4 @@
+
 "use client";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -17,35 +18,56 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
-  const { login } = useAuthContext();
+  const { signIn, user } = useAuthContext();
   const { toast } = useToast();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    const user = login(email, password);
-    if (user) {
-      toast({
-        title: 'Connexion réussie',
-        description: `Bienvenue, ${user.firstName}!`,
-      });
-      if (user.type === 'seller') {
-        router.push('/seller/dashboard');
-      } else {
-        router.push('/');
+    if (!signIn) return;
+
+    setIsLoading(true);
+    try {
+      const userCredential = await signIn(email, password);
+      if (userCredential?.user) {
+        toast({
+          title: 'Connexion réussie',
+          description: `Bienvenue !`,
+        });
+        
+        // We need to get the user's role from firestore,
+        // which happens in the useAuth hook. The user object
+        // might not be updated immediately. We can listen to user changes
+        // or redirect based on the route they were trying to access.
+        // For now, a simple timeout will allow the user object to update.
+        setTimeout(() => {
+          // This logic will be improved once the user object contains the role
+          router.push('/');
+        }, 500);
+
       }
-    } else {
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Erreur de connexion',
-        description: 'Email ou mot de passe incorrect.',
+        description: error.message || 'Email ou mot de passe incorrect.',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Redirect if user is already logged in and role is determined
+  if (user) {
+    if (user.role === 'seller') router.replace('/seller/dashboard');
+    else if (user.role === 'admin') router.replace('/admin/dashboard');
+    else if (user.role === 'buyer') router.replace('/');
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -92,8 +114,8 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
-          <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-            Se connecter
+          <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
+            {isLoading ? 'Connexion en cours...' : 'Se connecter'}
           </Button>
         </form>
         <div className="mt-4 text-center text-sm">
@@ -106,3 +128,5 @@ export default function LoginPage() {
     </Card>
   );
 }
+
+    
