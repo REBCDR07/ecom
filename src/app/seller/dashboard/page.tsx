@@ -1,5 +1,4 @@
 
-
 "use client";
 import Link from "next/link";
 import {
@@ -175,7 +174,7 @@ function ViewProofDialog({ proofUrl, orderId }: { proofUrl: string; orderId: str
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="relative aspect-video w-full rounded-md overflow-hidden border mt-4">
-              <Image src={proofUrl} alt={`Preuve de paiement pour la commande ${orderId}`} layout="fill" objectFit="contain" />
+              <Image src={proofUrl} alt={`Preuve de paiement pour la commande ${orderId}`} fill objectFit="contain" />
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Fermer</AlertDialogCancel>
