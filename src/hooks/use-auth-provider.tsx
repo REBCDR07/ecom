@@ -2,134 +2,124 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import {
-  User as FirebaseUser,
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut as firebaseSignOut,
-} from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { useAuth as useFirebaseAuth, useFirestore } from '@/firebase/provider';
-import type { User as AppUser } from '@/lib/types';
+import type { User as AppUser, SellerApplication } from '@/lib/types';
+import { useSellers } from './use-sellers';
 
-// Define the shape of the context data
+const AUTH_USER_KEY = 'marketconnect_user';
+
 interface AuthContextType {
-  user: AppUser | null | undefined;
-  signUp: (email: string, password?: string, additionalData?: Partial<AppUser>) => Promise<any>;
-  signIn: (email: string, password?: string) => Promise<any>;
+  user: AppUser | null;
+  signUp: (email: string, password?: string, additionalData?: Partial<AppUser>) => Promise<AppUser>;
+  signIn: (email: string, password?: string) => Promise<AppUser>;
   adminLogin: (password: string) => Promise<AppUser>;
   signOut: () => Promise<void>;
+  loading: boolean;
 }
 
-// Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Create the provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const auth = useFirebaseAuth();
-  const firestore = useFirestore();
-  const [user, setUser] = useState<AppUser | null | undefined>(undefined);
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth || !firestore) {
-      setUser(undefined);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data() as AppUser;
-          setUser({ ...userData, uid: firebaseUser.uid });
-        } else {
-          // This case can happen if the user is deleted from Firestore but not from Auth
-          setUser(null); 
-        }
+    setLoading(true);
+    try {
+      const storedUser = localStorage.getItem(AUTH_USER_KEY);
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
       } else {
-        // If there's no Firebase user, we need to check if we are keeping the mock admin user.
-        // If the current user state is the admin, we do nothing to prevent being logged out.
-        // Otherwise, we ensure the user is logged out (state is null).
-        setUser(currentUser => {
-            if (currentUser && currentUser.uid === 'admin_user') {
-                return currentUser;
-            }
-            return null;
-        });
+        setUser(null);
       }
-    });
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+      setUser(null);
+    } finally {
+        setLoading(false);
+    }
+  }, []);
 
-    return () => unsubscribe();
-  }, [auth, firestore]);
+  const updateUserInStorage = (userState: AppUser | null) => {
+    setUser(userState);
+    if (userState) {
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userState));
+    } else {
+        localStorage.removeItem(AUTH_USER_KEY);
+    }
+  }
 
   const signUp = useCallback(
-    async (email: string, password?: string, additionalData: Partial<AppUser> = {}) => {
-      if (!auth || !firestore) throw new Error("Firebase not initialized");
+    async (email: string, password?: string, additionalData: Partial<AppUser> = {}): Promise<AppUser> => {
+        const users: AppUser[] = JSON.parse(localStorage.getItem('users') || '[]');
+        if (users.find(u => u.email === email)) {
+            throw new Error("Un compte avec cet email existe déjà.");
+        }
 
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password!);
-      const firebaseUser = userCredential.user;
+        const newUser: AppUser = {
+            id: `user_${crypto.randomUUID()}`,
+            uid: `user_${crypto.randomUUID()}`,
+            email: email,
+            password: password, // In a real app, hash this!
+            role: 'buyer',
+            ...additionalData,
+        };
 
-      const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-      const newUser: AppUser = {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email!,
-        role: 'buyer',
-        ...additionalData,
-      };
-
-      await setDoc(userDocRef, newUser);
-      return userCredential;
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        return newUser;
     },
-    [auth, firestore]
+    []
   );
   
   const signIn = useCallback(
-    async (email: string, password?: string) => {
-        if (!auth) throw new Error("Firebase Auth not initialized");
-        return signInWithEmailAndPassword(auth, email, password!);
+    async (email: string, password?: string): Promise<AppUser> => {
+        const users: (AppUser & {password?: string})[] = JSON.parse(localStorage.getItem('users') || '[]');
+        const approvedSellers: (AppUser & {password?: string})[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
+        
+        const allUsers = [...users, ...approvedSellers];
+
+        const foundUser = allUsers.find(u => u.email === email);
+        
+        if (foundUser && foundUser.password === password) {
+            const { password, ...userToAuth } = foundUser;
+            updateUserInStorage(userToAuth as AppUser);
+            return userToAuth as AppUser;
+        }
+        
+        throw new Error("Email ou mot de passe incorrect.");
     },
-    [auth]
+    []
   );
 
-  const adminLogin = useCallback(async (password: string) => {
+  const adminLogin = useCallback(async (password: string): Promise<AppUser> => {
     if (password === 'BeninShell@2025') {
       const adminUser: AppUser = {
+        id: 'admin_user',
         uid: 'admin_user',
         email: 'admin@marketconnect.com',
         role: 'admin',
         displayName: 'Admin'
       };
-      setUser(adminUser);
+      updateUserInStorage(adminUser);
       return adminUser;
     }
     throw new Error("Mot de passe administrateur incorrect.");
   }, []);
 
   const signOut = useCallback(async () => {
-    // Check if the current user is the mock admin.
-    if (user && user.uid === 'admin_user') {
-        // If it's the admin, just clear the local state.
-        setUser(null);
-    } else if (auth) {
-        // For real Firebase users, call firebaseSignOut.
-        // The onAuthStateChanged listener will then handle setting the state to null.
-        await firebaseSignOut(auth);
-    }
-  }, [auth, user]);
+    updateUserInStorage(null);
+  }, []);
 
-  const value = { user, signUp, signIn, adminLogin, signOut };
+  const value = { user, signUp, signIn, adminLogin, signOut, loading };
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-// Create a hook to use the auth context
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

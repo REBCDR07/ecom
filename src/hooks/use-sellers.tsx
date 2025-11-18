@@ -1,18 +1,17 @@
 
 "use client";
 
-import { Seller, SellerApplication, Product } from '@/lib/types';
+import { Seller, SellerApplication, Product, User } from '@/lib/types';
 import { useCallback } from 'react';
 import { useNotifications } from './use-notifications';
-import { useAuthContext } from './use-auth-provider';
 
 const PENDING_SELLERS_KEY = 'pending_sellers';
 const APPROVED_SELLERS_KEY = 'approved_sellers';
+const USERS_KEY = 'users';
 
 
 export const useSellers = () => {
     const { createNotification } = useNotifications();
-    const { signUp } = useAuthContext();
     
     const getFromStorage = useCallback((key: string): any[] => {
         if (typeof window === 'undefined') return [];
@@ -42,7 +41,7 @@ export const useSellers = () => {
         const pendingSellers = getPendingSellers();
         const newSellerApplication: SellerApplication = {
             ...sellerData,
-            id: `seller_${crypto.randomUUID()}`,
+            id: `seller_app_${crypto.randomUUID()}`,
             submissionDate: new Date().toISOString(),
             status: 'pending',
         };
@@ -56,70 +55,58 @@ export const useSellers = () => {
         });
     }, [getPendingSellers, saveToStorage, createNotification]);
 
-    const approveSeller = useCallback(async (sellerId: string) => {
+    const approveSeller = useCallback(async (applicationId: string) => {
         const pendingSellers: SellerApplication[] = getFromStorage(PENDING_SELLERS_KEY);
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
 
-        const sellerToApprove = pendingSellers.find(s => s.id === sellerId);
+        const appToApprove = pendingSellers.find(s => s.id === applicationId);
 
-        if (sellerToApprove && sellerToApprove.password) {
-            try {
-                // 1. Create the Firebase Auth user
-                const userCredential = await signUp(sellerToApprove.email, sellerToApprove.password, {
-                    role: 'seller',
-                    displayName: `${sellerToApprove.firstName} ${sellerToApprove.lastName}`
-                });
-                const firebaseUser = userCredential.user;
+        if (appToApprove) {
+            const sellerId = `seller_${crypto.randomUUID()}`;
+            const newSeller: Seller = {
+                uid: sellerId,
+                id: sellerId,
+                role: 'seller',
+                email: appToApprove.email,
+                displayName: `${appToApprove.firstName} ${appToApprove.lastName}`,
+                companyName: appToApprove.companyName,
+                profilePicture: appToApprove.profilePicture || `https://picsum.photos/seed/${sellerId}/100/100`,
+                bannerPicture: appToApprove.bannerPicture || `https://picsum.photos/seed/${sellerId}-banner/1600/400`,
+                imageHint: 'portrait',
+                phone: appToApprove.phone,
+                whatsapp: appToApprove.whatsapp,
+                address: appToApprove.address,
+                products: [],
+                password: appToApprove.password
+            };
 
-                // 2. Create the seller profile in localStorage
-                const newSellerProfile: Seller = {
-                    uid: firebaseUser.uid,
-                    role: 'seller',
-                    email: sellerToApprove.email,
-                    displayName: `${sellerToApprove.firstName} ${sellerToApprove.lastName}`,
-                    companyName: sellerToApprove.companyName,
-                    profilePicture: sellerToApprove.profilePicture || `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
-                    bannerPicture: sellerToApprove.bannerPicture || `https://picsum.photos/seed/${firebaseUser.uid}-banner/1600/400`,
-                    imageHint: 'portrait',
-                    phone: sellerToApprove.phone,
-                    whatsapp: sellerToApprove.whatsapp,
-                    address: sellerToApprove.address,
-                    products: []
-                };
-
-                // 3. Update localStorage
-                const remainingPending = pendingSellers.filter(s => s.id !== sellerId);
-                saveToStorage(PENDING_SELLERS_KEY, remainingPending);
-                saveToStorage(APPROVED_SELLERS_KEY, [...approvedSellers, newSellerProfile]);
-
-            } catch (error) {
-                console.error("Failed to approve seller:", error);
-                throw error; // Re-throw to be caught by the UI
-            }
+            const remainingPending = pendingSellers.filter(s => s.id !== applicationId);
+            saveToStorage(PENDING_SELLERS_KEY, remainingPending);
+            saveToStorage(APPROVED_SELLERS_KEY, [...approvedSellers, newSeller]);
         }
-    }, [getFromStorage, saveToStorage, signUp]);
+    }, [getFromStorage, saveToStorage]);
 
-    const rejectSeller = useCallback((sellerId: string) => {
+    const rejectSeller = useCallback((applicationId: string) => {
         const pendingSellers: SellerApplication[] = getFromStorage(PENDING_SELLERS_KEY);
-        const remainingPending = pendingSellers.filter(s => s.id !== sellerId);
+        const remainingPending = pendingSellers.filter(s => s.id !== applicationId);
         saveToStorage(PENDING_SELLERS_KEY, remainingPending);
     }, [getFromStorage, saveToStorage]);
 
     const addProduct = useCallback((sellerId: string, productData: Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'createdAt'>) => {
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
-        const seller = approvedSellers.find(s => s.uid === sellerId);
+        const seller = approvedSellers.find(s => s.id === sellerId);
 
         if (seller) {
             const newProduct: Product = {
                 ...productData,
                 id: `prod_${crypto.randomUUID()}`,
-                sellerId: seller.uid,
+                sellerId: seller.id,
                 sellerName: seller.companyName,
                 createdAt: new Date().toISOString()
             };
 
             const updatedSellers = approvedSellers.map(s => 
-                s.uid === sellerId 
+                s.id === sellerId 
                 ? { ...s, products: [...(s.products || []), newProduct] }
                 : s
             );
@@ -130,7 +117,7 @@ export const useSellers = () => {
     const updateProduct = useCallback((sellerId: string, updatedProduct: Product) => {
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
         const updatedSellers = approvedSellers.map(seller => {
-            if (seller.uid === sellerId) {
+            if (seller.id === sellerId) {
                 const updatedProducts = (seller.products || []).map(p => 
                     p.id === updatedProduct.id ? updatedProduct : p
                 );
@@ -144,7 +131,7 @@ export const useSellers = () => {
     const deleteProduct = useCallback((sellerId: string, productId: string) => {
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
         const updatedSellers = approvedSellers.map(seller => {
-            if (seller.uid === sellerId) {
+            if (seller.id === sellerId) {
                 const remainingProducts = (seller.products || []).filter(p => p.id !== productId);
                 return { ...seller, products: remainingProducts };
             }
@@ -155,13 +142,13 @@ export const useSellers = () => {
     
     const getSellerById = useCallback((sellerId: string): Seller | null => {
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
-        return approvedSellers.find(s => s.uid === sellerId) || null;
+        return approvedSellers.find(s => s.id === sellerId) || null;
     }, [getFromStorage]);
 
     const updateSellerProfile = useCallback((sellerId: string, profileData: Partial<Seller>) => {
         const sellers = getFromStorage(APPROVED_SELLERS_KEY) as Seller[];
         const updatedSellers = sellers.map(seller => 
-            seller.uid === sellerId ? { ...seller, ...profileData } : seller
+            seller.id === sellerId ? { ...seller, ...profileData } : seller
         );
         saveToStorage(APPROVED_SELLERS_KEY, updatedSellers);
     }, [getFromStorage, saveToStorage]);
