@@ -40,7 +40,8 @@ export default function AdminLoginPage() {
         title: 'Accès refusé',
         description: error.message || 'Le mot de passe est incorrect.',
       });
-      setIsLoading(false);
+    } finally {
+        setIsLoading(false);
     }
   };
 
