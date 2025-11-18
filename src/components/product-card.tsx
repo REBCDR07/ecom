@@ -1,3 +1,4 @@
+
 "use client";
 import Image from 'next/image';
 import Link from 'next/link';
@@ -26,11 +27,13 @@ function OrderForm({ product, user, onOrderPlaced }: { product: Product; user: U
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const orderData = {
-      buyerFirstName: formData.get('firstName') as string,
-      buyerLastName: formData.get('lastName') as string,
-      buyerEmail: formData.get('email') as string,
-      buyerPhone: formData.get('phone') as string,
-      deliveryAddress: formData.get('address') as string,
+      buyerInfo: {
+        firstName: formData.get('firstName') as string,
+        lastName: formData.get('lastName') as string,
+        email: formData.get('email') as string,
+        phone: formData.get('phone') as string,
+        address: formData.get('address') as string,
+      }
     };
 
     createOrder(product, user, orderData);
@@ -47,11 +50,11 @@ function OrderForm({ product, user, onOrderPlaced }: { product: Product; user: U
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="firstName">Prénom</Label>
-          <Input id="firstName" name="firstName" defaultValue={user.firstName} required />
+          <Input id="firstName" name="firstName" defaultValue={user.displayName?.split(' ')[0]} required />
         </div>
         <div className="space-y-2">
           <Label htmlFor="lastName">Nom</Label>
-          <Input id="lastName" name="lastName" defaultValue={user.lastName} required />
+          <Input id="lastName" name="lastName" defaultValue={user.displayName?.split(' ')[1]} required />
         </div>
       </div>
       <div className="space-y-2">
@@ -79,16 +82,16 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isOrderFormOpen, setOrderFormOpen] = useState(false);
 
   const handleOrderClick = () => {
-    if (user && user.type === 'buyer') {
+    if (user && user.role === 'buyer') {
       setOrderFormOpen(true);
-    } else if (user && (user.type === 'seller' || user.type === 'admin')) {
+    } else if (user && (user.role === 'seller' || user.role === 'admin')) {
       // Sellers and Admins can't order, so do nothing.
     } else {
       router.push('/login');
     }
   };
   
-  const canOrder = !user || user.type === 'buyer';
+  const canOrder = !user || user.role === 'buyer';
 
 
   return (
@@ -138,7 +141,7 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
         </div>
         
-        {user && user.type === 'buyer' && (
+        {user && user.role === 'buyer' && (
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Passer une commande pour "{product.name}"</DialogTitle>

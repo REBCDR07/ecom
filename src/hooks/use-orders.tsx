@@ -30,7 +30,7 @@ export const useOrders = () => {
         }
     }, []);
 
-    const createOrder = useCallback((product: Product, buyer: User, orderDetails: Omit<Order, 'id' | 'productId' | 'productName' | 'productImage' | 'price' | 'quantity' | 'sellerId' | 'buyerId' | 'orderDate' | 'status'>) => {
+    const createOrder = useCallback((product: Product, buyer: User, orderDetails: Pick<Order, 'buyerInfo'>) => {
         const orders: Order[] = getFromStorage(ORDERS_KEY);
         const newOrder: Order = {
             id: `order_${crypto.randomUUID()}`,
@@ -40,7 +40,7 @@ export const useOrders = () => {
             price: product.promotionalPrice || product.price,
             quantity: 1, // Defaulting to 1 for simplicity
             sellerId: product.sellerId,
-            buyerId: buyer.id,
+            buyerId: buyer.uid,
             ...orderDetails,
             orderDate: new Date().toISOString(),
             status: 'pending',

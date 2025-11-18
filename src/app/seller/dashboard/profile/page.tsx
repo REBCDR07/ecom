@@ -22,8 +22,8 @@ export default function ManageSellerProfilePage() {
     const router = useRouter();
 
     useEffect(() => {
-        if (user && user.type === 'seller') {
-            const sellerData = getSellerById(user.id);
+        if (user && user.role === 'seller') {
+            const sellerData = getSellerById(user.uid);
             setSeller(sellerData);
         }
     }, [user, getSellerById]);
@@ -41,7 +41,7 @@ export default function ManageSellerProfilePage() {
         return <p>Chargement...</p>;
     }
     
-    const bannerImage = seller.bannerPicture || `https://picsum.photos/seed/${seller.id}-banner/1600/400`;
+    const bannerImage = seller.bannerPicture || `https://picsum.photos/seed/${seller.uid}-banner/1600/400`;
 
   return (
     <div className="container mx-auto max-w-4xl py-8">

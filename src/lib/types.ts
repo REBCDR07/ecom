@@ -10,6 +10,7 @@ export type Product = {
   sellerId: string;
   sellerName: string;
   description: string;
+  createdAt: string;
 };
 
 export interface User {
@@ -18,12 +19,6 @@ export interface User {
   displayName?: string;
   photoURL?: string;
   role: 'seller' | 'buyer' | 'admin';
-  // Below are properties from the old system, can be phased out
-  id?: string;
-  firstName?: string;
-  lastName?: string;
-  password?: string; // Insecure, for demo only
-  type?: 'seller' | 'buyer' | 'admin';
 }
 
 export interface AdminProfile {
@@ -35,7 +30,7 @@ export interface AdminProfile {
     bio?: string;
 }
 
-export interface Seller extends Omit<User, 'role'> {
+export interface Seller extends User {
   role: 'seller';
   companyName: string;
   profilePicture: string;
@@ -47,13 +42,24 @@ export interface Seller extends Omit<User, 'role'> {
   products?: Product[];
 }
 
-export interface SellerApplication extends Omit<Seller, 'imageHint' | 'products' | 'role' | 'uid'> {
+export interface SellerApplication {
   id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  companyName: string;
+  address: string;
   activity: string;
   whyPlatform: string;
+  password?: string;
+  profilePicture?: string;
+  bannerPicture?: string;
   submissionDate: string;
   status: 'pending' | 'approved' | 'rejected';
 }
+
 
 export type Order = {
   id: string;
@@ -64,11 +70,13 @@ export type Order = {
   quantity: number;
   sellerId: string;
   buyerId: string;
-  buyerFirstName: string;
-  buyerLastName: string;
-  buyerEmail: string;
-  buyerPhone: string;
-  deliveryAddress: string;
+  buyerInfo: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
   orderDate: string;
   status: 'pending' | 'shipped' | 'delivered';
 }
@@ -92,5 +100,3 @@ export type Notification = {
     timestamp: string;
     isRead: boolean;
 }
-
-    

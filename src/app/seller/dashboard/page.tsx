@@ -29,7 +29,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useAuthContext } from "@/hooks/use-auth-provider";
 import { useEffect, useState, useCallback } from "react";
-import { Product, Seller, Order } from "@/lib/types";
+import { Product, Seller, Order, User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useSellers } from "@/hooks/use-sellers";
 import {
@@ -47,7 +47,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { useOrders } from "@/hooks/use-orders";
 
-function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: { products: Product[], user: Seller, setProductToDelete: (id: string | null) => void, refreshSellerData: () => void }) {
+function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: { products: Product[], user: User, setProductToDelete: (id: string | null) => void, refreshSellerData: () => void }) {
   const { deleteProduct } = useSellers();
   const { toast } = useToast();
   const [isAlertOpen, setAlertOpen] = useState(false);
@@ -61,7 +61,7 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
 
   const handleConfirmDelete = () => {
     if (!user || !currentProductId) return;
-    deleteProduct(user.id, currentProductId);
+    deleteProduct(user.uid, currentProductId);
     refreshSellerData();
     toast({
       variant: 'destructive',
@@ -202,9 +202,9 @@ function OrdersTab({ orders, sellerId }: { orders: Order[], sellerId: string }) 
                                 </TableCell>
                                 <TableCell className="font-medium">{order.productName}</TableCell>
                                 <TableCell>
-                                    <div className="font-medium">{order.buyerFirstName} {order.buyerLastName}</div>
+                                    <div className="font-medium">{order.buyerInfo.firstName} {order.buyerInfo.lastName}</div>
                                     <div className="hidden text-sm text-muted-foreground md:inline">
-                                        {order.buyerEmail}
+                                        {order.buyerInfo.email}
                                     </div>
                                 </TableCell>
                                 <TableCell>
@@ -258,15 +258,15 @@ export default function SellerDashboard() {
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   const refreshSellerData = useCallback(() => {
-    if (user && user.type === 'seller' && typeof window !== 'undefined') {
+    if (user && user.role === 'seller' && typeof window !== 'undefined') {
         const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
-        const currentSeller = approvedSellers.find(s => s.id === user.id);
+        const currentSeller = approvedSellers.find(s => s.uid === user.uid);
         if (currentSeller) {
           setSeller(currentSeller);
           const sellerProducts = currentSeller.products || [];
           setProducts(sellerProducts);
 
-          const sellerOrders = getOrdersForSeller(user.id);
+          const sellerOrders = getOrdersForSeller(user.uid);
           setOrders(sellerOrders);
 
           const totalSales = sellerOrders.reduce((acc, order) => acc + (order.price * order.quantity), 0);
@@ -328,10 +328,10 @@ export default function SellerDashboard() {
                 <TabsTrigger value="products">Produits ({products.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="orders" className="mt-4">
-               {user && <OrdersTab orders={orders} sellerId={user.id} />}
+               {user && <OrdersTab orders={orders} sellerId={user.uid} />}
             </TabsContent>
             <TabsContent value="products" className="mt-4">
-              {seller && <ProductsTab products={products} user={seller} setProductToDelete={setProductToDelete} refreshSellerData={refreshSellerData} />}
+              {seller && user && <ProductsTab products={products} user={user} setProductToDelete={setProductToDelete} refreshSellerData={refreshSellerData} />}
             </TabsContent>
         </Tabs>
     </div>

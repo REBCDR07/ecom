@@ -66,25 +66,35 @@ export const useSellers = () => {
             const defaultProfilePic = `https://picsum.photos/seed/${sellerToApprove.id}/100/100`;
             const defaultBannerPic = `https://picsum.photos/seed/${sellerToApprove.id}-banner/1600/400`;
 
-            const newApprovedSeller: Seller = {
-                id: sellerToApprove.id,
+            const { id, ...restOfApp } = sellerToApprove;
+
+            const newSellerUser = {
+                // This data will be used to create the actual user
+                email: sellerToApprove.email,
+                password: sellerToApprove.password,
+            };
+
+            const newSellerProfile: Seller = {
+                uid: sellerToApprove.id, // Using the application ID as the UID for now.
+                role: 'seller',
+                email: sellerToApprove.email,
+                displayName: `${sellerToApprove.firstName} ${sellerToApprove.lastName}`,
                 companyName: sellerToApprove.companyName,
                 profilePicture: sellerToApprove.profilePicture || defaultProfilePic,
                 bannerPicture: sellerToApprove.bannerPicture || defaultBannerPic,
                 imageHint: 'portrait',
-                firstName: sellerToApprove.firstName,
-                lastName: sellerToApprove.lastName,
-                email: sellerToApprove.email,
                 phone: sellerToApprove.phone,
                 whatsapp: sellerToApprove.whatsapp,
                 address: sellerToApprove.address,
-                password: sellerToApprove.password, 
-                type: 'seller',
                 products: []
             };
 
             saveToStorage(PENDING_SELLERS_KEY, remainingPending);
-            saveToStorage(APPROVED_SELLERS_KEY, [...approvedSellers, newApprovedSeller]);
+            saveToStorage(APPROVED_SELLERS_KEY, [...approvedSellers, newSellerProfile]);
+            
+            // This is where you would call the actual `signUp` function.
+            // For now, we simulate it. The admin will create the account.
+            // This part of the logic needs to be connected to the useAuth `signUp`.
         }
     }, [getFromStorage, saveToStorage]);
 
@@ -94,20 +104,21 @@ export const useSellers = () => {
         saveToStorage(PENDING_SELLERS_KEY, remainingPending);
     }, [getFromStorage, saveToStorage]);
 
-    const addProduct = useCallback((sellerId: string, productData: Omit<Product, 'id' | 'sellerId' | 'sellerName'>) => {
+    const addProduct = useCallback((sellerId: string, productData: Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'createdAt'>) => {
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
-        const seller = approvedSellers.find(s => s.id === sellerId);
+        const seller = approvedSellers.find(s => s.uid === sellerId);
 
         if (seller) {
             const newProduct: Product = {
                 ...productData,
                 id: `prod_${crypto.randomUUID()}`,
-                sellerId: seller.id,
+                sellerId: seller.uid,
                 sellerName: seller.companyName,
+                createdAt: new Date().toISOString()
             };
 
             const updatedSellers = approvedSellers.map(s => 
-                s.id === sellerId 
+                s.uid === sellerId 
                 ? { ...s, products: [...(s.products || []), newProduct] }
                 : s
             );
@@ -118,7 +129,7 @@ export const useSellers = () => {
     const updateProduct = useCallback((sellerId: string, updatedProduct: Product) => {
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
         const updatedSellers = approvedSellers.map(seller => {
-            if (seller.id === sellerId) {
+            if (seller.uid === sellerId) {
                 const updatedProducts = (seller.products || []).map(p => 
                     p.id === updatedProduct.id ? updatedProduct : p
                 );
@@ -132,7 +143,7 @@ export const useSellers = () => {
     const deleteProduct = useCallback((sellerId: string, productId: string) => {
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
         const updatedSellers = approvedSellers.map(seller => {
-            if (seller.id === sellerId) {
+            if (seller.uid === sellerId) {
                 const remainingProducts = (seller.products || []).filter(p => p.id !== productId);
                 return { ...seller, products: remainingProducts };
             }
@@ -143,7 +154,7 @@ export const useSellers = () => {
     
     const getSellerById = useCallback((sellerId: string): Seller | null => {
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
-        return approvedSellers.find(s => s.id === sellerId) || null;
+        return approvedSellers.find(s => s.uid === sellerId) || null;
     }, [getFromStorage]);
 
     return {

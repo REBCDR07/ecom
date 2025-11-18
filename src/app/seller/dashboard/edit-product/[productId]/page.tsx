@@ -35,9 +35,9 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    if (user && user.type === 'seller' && productId && typeof window !== 'undefined') {
+    if (user && user.role === 'seller' && productId && typeof window !== 'undefined') {
         const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
-        const seller = approvedSellers.find(s => s.id === user.id);
+        const seller = approvedSellers.find(s => s.uid === user.uid);
         if (seller) {
             const foundProduct = seller.products?.find(p => p.id === productId);
             if (foundProduct) {
@@ -85,7 +85,7 @@ export default function EditProductPage() {
       imageHint: product.imageHint,
     };
     
-    updateProduct(user.id, updatedProductData);
+    updateProduct(user.uid, updatedProductData);
     toast({
       title: "Produit mis à jour !",
       description: "Les informations de votre produit ont été sauvegardées.",
@@ -97,7 +97,7 @@ export default function EditProductPage() {
     return <p>Chargement du produit...</p>
   }
   
-  if (!user || user.type !== 'seller') {
+  if (!user || user.role !== 'seller') {
     return <p>Accès non autorisé.</p>
   }
 

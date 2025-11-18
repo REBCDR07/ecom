@@ -55,7 +55,7 @@ export default function AddProductPage() {
     }
 
 
-    const newProductData: Omit<Product, 'id' | 'sellerId' | 'sellerName'> = {
+    const newProductData: Omit<Product, 'id' | 'sellerId' | 'sellerName' | 'createdAt'> = {
       name: formData.get('product-name') as string,
       price: Number(formData.get('price')),
       promotionalPrice: promotionalPrice ? Number(promotionalPrice) : undefined,
@@ -64,7 +64,7 @@ export default function AddProductPage() {
       imageHint: 'new product',
     };
     
-    addProduct(user.id, newProductData);
+    addProduct(user.uid, newProductData);
     toast({
       title: "Produit ajouté !",
       description: "Votre nouveau produit est maintenant dans votre boutique.",
@@ -72,7 +72,7 @@ export default function AddProductPage() {
     router.push('/seller/dashboard');
   };
   
-  if (!user || user.type !== 'seller') {
+  if (!user || user.role !== 'seller') {
     // This part should be handled by the layout, but as a fallback:
     if (typeof window !== 'undefined') {
         router.replace('/login');
