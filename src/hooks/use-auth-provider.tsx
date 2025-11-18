@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     try {
       const storedUser = localStorage.getItem(AUTH_USER_KEY);
       if (storedUser) {
