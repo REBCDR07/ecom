@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      // This listener ONLY handles Firebase users. It will not touch the mock admin user.
       if (firebaseUser) {
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         const userDocSnap = await getDoc(userDocRef);
@@ -50,8 +49,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(null); 
         }
       } else {
-        // If no firebase user is signed in, check if the current user is the mock admin.
-        // If it is, do nothing to preserve the admin session. Otherwise, set user to null.
+        // If no firebase user, we need to check if the current user is the mock admin.
+        // If it is, we preserve it. Otherwise, set to null.
         setUser(currentUser => {
             if (currentUser && currentUser.uid === 'admin_user') {
                 return currentUser;
@@ -108,14 +107,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = useCallback(async () => {
-    // If the user is the mock admin, just set state to null.
-    if (user?.uid === 'admin_user') {
+    // Check if the current user is the mock admin.
+    if (user && user.uid === 'admin_user') {
+        // If it's the admin, just clear the local state.
         setUser(null);
-        return;
-    }
-    // For real Firebase users, sign them out. 
-    // onAuthStateChanged will then set the user state to null.
-    if (auth) {
+    } else if (auth) {
+        // For real Firebase users, call firebaseSignOut.
+        // The onAuthStateChanged listener will then handle setting the state to null.
         await firebaseSignOut(auth);
     }
   }, [auth, user]);
