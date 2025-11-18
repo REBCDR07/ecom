@@ -131,7 +131,7 @@ export default function AdminDashboard() {
   const [pendingSellers, setPendingSellers] = useState<SellerApplication[]>([]);
   const { toast } = useToast();
   const router = useRouter();
-  const { logout } = useAuthContext();
+  const { signOut } = useAuthContext();
   const [stats, setStats] = useState({ totalSales: 0, totalProducts: 0, totalClients: 0 });
 
   const refreshData = useCallback(() => {
@@ -143,11 +143,12 @@ export default function AdminDashboard() {
     // Calculate stats
     const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
     const allOrders: Order[] = JSON.parse(localStorage.getItem('marketconnect_orders') || '[]');
-    const allBuyers: AppUser[] = JSON.parse(localStorage.getItem('buyers') || '[]');
+    // The list of buyers isn't explicitly stored, so we count unique buyer IDs from orders.
+    const allBuyerIds = new Set(allOrders.map(o => o.buyerId));
 
     const totalSales = allOrders.reduce((sum, order) => sum + order.price, 0);
     const totalProducts = approvedSellers.reduce((sum, seller) => sum + (seller.products?.length || 0), 0);
-    const totalClients = allBuyers.length;
+    const totalClients = allBuyerIds.size; // Using the size of the Set for unique buyers
 
     setStats({ totalSales, totalProducts, totalClients });
 
@@ -177,8 +178,9 @@ export default function AdminDashboard() {
     });
   }
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    if (!signOut) return;
+    await signOut();
     toast({
         title: 'Déconnexion',
         description: 'Vous avez été déconnecté.',
