@@ -19,8 +19,6 @@ export const useAuthLogic = () => {
   const [user, setUser] = useState<AppUser | null | undefined>(undefined);
 
   useEffect(() => {
-    // If Firebase services are not ready, don't do anything.
-    // The user state remains `undefined` (loading).
     if (!auth || !firestore) return;
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
@@ -33,13 +31,9 @@ export const useAuthLogic = () => {
           setUser({ ...userData, uid: firebaseUser.uid });
         } else {
           // This might happen if user record in Firestore is deleted but auth record remains.
-          // Or if it's a new sign-up and the doc hasn't been created yet.
-          // We sign them out to be safe.
-          await firebaseSignOut(auth);
           setUser(null); 
         }
       } else {
-        // No firebase user, so our app user is null.
         setUser(null);
       }
     });
@@ -63,7 +57,7 @@ export const useAuthLogic = () => {
       };
 
       await setDoc(userDocRef, newUser);
-      // Don't setUser here, onAuthStateChanged will handle it to ensure data consistency
+      // Let onAuthStateChanged handle setting the user state.
       return userCredential;
     },
     [auth, firestore]
@@ -86,8 +80,7 @@ export const useAuthLogic = () => {
         role: 'admin',
         displayName: 'Admin'
       };
-      // In a real app, you wouldn't set a user like this.
-      // This is a workaround for the prototype.
+      // For mock admin, we set the user state directly.
       setUser(adminUser);
       return adminUser;
     }
@@ -95,14 +88,13 @@ export const useAuthLogic = () => {
   }, []);
 
   const signOut = useCallback(async () => {
-    if (!auth) throw new Error("Firebase Auth not initialized");
     // If it's our mock admin, just clear state.
     if (user?.role === 'admin') {
         setUser(null);
-    } else {
+    } else if (auth) {
         await firebaseSignOut(auth);
     }
-  }, [auth, user]);
+  }, [auth, user?.role]);
 
   return { user, signUp, signIn, adminLogin, signOut };
 };

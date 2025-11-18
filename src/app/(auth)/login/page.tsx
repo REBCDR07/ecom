@@ -34,11 +34,11 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signIn(email, password);
+      // La redirection sera gérée par le useEffect
       toast({
         title: 'Connexion réussie',
         description: `Bienvenue !`,
       });
-      // The redirect will be handled by the useEffect below
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -50,18 +50,26 @@ export default function LoginPage() {
     }
   };
   
-  // This effect will run when the `user` object changes
+  // Cet effet redirige l'utilisateur une fois qu'il est connecté avec succès.
   useEffect(() => {
+    // On agit seulement si `user` est défini (pas `undefined` ou `null`)
     if (user) {
         if (user.role === 'seller') router.replace('/seller/dashboard');
         else if (user.role === 'admin') router.replace('/admin/dashboard');
         else if (user.role === 'buyer') router.replace('/');
     }
+    // La dépendance `user` garantit que l'effet s'exécute quand l'état d'auth change.
   }, [user, router]);
   
-  // Show a loading or blank state while user is `undefined`
+  // Affiche un état de chargement pendant l'initialisation de l'authentification.
   if (user === undefined) {
     return <div className="flex items-center justify-center h-full"><p>Chargement...</p></div>;
+  }
+
+  // Si l'utilisateur est déjà connecté, il sera redirigé par le useEffect.
+  // On peut afficher un message pendant ce court instant.
+  if (user) {
+    return <div className="flex items-center justify-center h-full"><p>Vous êtes déjà connecté. Redirection...</p></div>;
   }
 
   return (

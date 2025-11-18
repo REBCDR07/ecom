@@ -22,8 +22,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuthContext } from '@/hooks/use-auth-provider';
-import { doc, setDoc } from 'firebase/firestore';
-import { useFirestore } from '@/firebase/provider';
 import { useSellers } from '@/hooks/use-sellers';
 
 const buyerSchema = z.object({
