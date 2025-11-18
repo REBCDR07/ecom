@@ -209,8 +209,8 @@ function OrdersTab({ orders, sellerId }: { orders: Order[], sellerId: string }) 
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'} className={
-                                        order.status === 'pending' ? 'bg-yellow-400' : 
-                                        order.status === 'shipped' ? 'bg-blue-400' : 'bg-green-500'
+                                        order.status === 'pending' ? 'bg-yellow-400 text-yellow-900' : 
+                                        order.status === 'shipped' ? 'bg-blue-400 text-blue-900' : 'bg-green-500 text-green-900'
                                     }>
                                         {order.status === 'pending' && 'En attente'}
                                         {order.status === 'shipped' && 'Expédiée'}
@@ -289,7 +289,7 @@ export default function SellerDashboard() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+    <div className="flex-1 space-y-4">
         <div className="flex items-center justify-between">
             <h2 className="text-3xl font-bold tracking-tight">Tableau de bord Vendeur</h2>
         </div>
@@ -323,7 +323,7 @@ export default function SellerDashboard() {
             </Card>
         </div>
         <Tabs defaultValue="orders">
-            <TabsList>
+            <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="orders">Commandes ({orders.length})</TabsTrigger>
                 <TabsTrigger value="products">Produits ({products.length})</TabsTrigger>
             </TabsList>

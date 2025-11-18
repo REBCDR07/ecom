@@ -10,6 +10,7 @@ import {
   Settings,
   ShoppingBag,
   UserCircle,
+  Menu
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,7 @@ import { Badge } from "@/components/ui/badge"
 import { useOrders } from "@/hooks/use-orders"
 import NotificationsPopover from "@/components/shared/notifications-popover"
 import { Notification, useNotifications } from "@/hooks/use-notifications"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export default function SellerLayout({
   children,
@@ -79,6 +81,24 @@ export default function SellerLayout({
       )
   }
 
+  const SidebarNav = ({className}: {className?: string}) => (
+     <nav className={cn("grid items-start px-2 text-sm font-medium lg:px-4", className)}>
+        {navItems.map(item => (
+        <Link
+            key={item.href}
+            href={item.href}
+            className={cn("flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+            { "bg-muted text-primary": pathname === item.href }
+            )}
+        >
+            <item.icon className="h-4 w-4" />
+            {item.label}
+            {item.badge && <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">{item.badge}</Badge>}
+        </Link>
+        ))}
+    </nav>
+  )
+
 
   return (
     <div className="grid min-h-[calc(100vh-57px)] w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -94,21 +114,7 @@ export default function SellerLayout({
             </div>
           </div>
           <div className="flex-1">
-            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-             {navItems.map(item => (
-                <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn("flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                    { "bg-muted text-primary": pathname === item.href }
-                    )}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-                {item.badge && <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">{item.badge}</Badge>}
-              </Link>
-             ))}
-            </nav>
+            <SidebarNav />
           </div>
           <div className="mt-auto p-4">
             <Button size="sm" variant="ghost" className="w-full justify-start" onClick={handleLogout}>
@@ -119,6 +125,29 @@ export default function SellerLayout({
         </div>
       </div>
       <div className="flex flex-col">
+         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="shrink-0"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col">
+              <SidebarNav className="grid gap-2 text-lg font-medium"/>
+            </SheetContent>
+          </Sheet>
+           <div className="w-full flex-1">
+             <h1 className="text-lg font-semibold">Espace Vendeur</h1>
+          </div>
+            <div className="ml-auto">
+                <NotificationsPopover userType="seller" />
+            </div>
+        </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
           {children}
         </main>

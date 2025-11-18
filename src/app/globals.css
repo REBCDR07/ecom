@@ -6,25 +6,25 @@
 
 @layer base {
   :root {
-    --background: 60 56% 91%;
-    --foreground: 0 0% 20%;
+    --background: 220 20% 95%; /* Light cool gray */
+    --foreground: 220 10% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 20%;
+    --card-foreground: 220 10% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 20%;
-    --primary: 55 100% 61%;
-    --primary-foreground: 0 0% 20%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 37 92% 55%;
-    --accent-foreground: 0 0% 100%;
+    --popover-foreground: 220 10% 15%;
+    --primary: 35 92% 55%; /* Vibrant orange */
+    --primary-foreground: 0 0% 10%;
+    --secondary: 220 10% 90%;
+    --secondary-foreground: 220 10% 9%;
+    --muted: 220 10% 90%;
+    --muted-foreground: 220 10% 45.1%;
+    --accent: 45 95% 55%; /* Vibrant yellow/gold */
+    --accent-foreground: 0 0% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 55 100% 61%;
+    --border: 220 10% 85%;
+    --input: 220 10% 85%;
+    --ring: 35 92% 55%;
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -34,25 +34,25 @@
   }
 
   .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 55 100% 61%;
-    --primary-foreground: 0 0% 20%;
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 37 92% 55%;
-    --accent-foreground: 0 0% 100%;
+    --background: 220 15% 10%;
+    --foreground: 220 10% 95%;
+    --card: 220 15% 12%;
+    --card-foreground: 220 10% 95%;
+    --popover: 220 15% 12%;
+    --popover-foreground: 220 10% 95%;
+    --primary: 35 92% 55%; /* Vibrant orange */
+    --primary-foreground: 0 0% 10%;
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 220 10% 95%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 10% 63.9%;
+    --accent: 45 95% 55%; /* Vibrant yellow/gold */
+    --accent-foreground: 0 0% 10%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 55 100% 61%;
+    --border: 220 15% 25%;
+    --input: 220 15% 25%;
+    --ring: 35 92% 55%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

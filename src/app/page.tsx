@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-       <section className="relative h-[70vh] w-full flex flex-col items-center justify-center text-white text-center">
+       <section className="relative h-[70vh] w-full flex flex-col items-center justify-center text-center text-white">
         <Carousel
           opts={{ loop: true }}
           className="absolute inset-0 w-full h-full -z-10"
@@ -70,7 +70,7 @@ export default function Home() {
             Pourquoi choisir MarketConnect ?
           </h2>
           <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center p-4">
               <div className="bg-primary/20 p-4 rounded-full mb-4">
                 <Store className="h-8 w-8 text-primary" />
               </div>
@@ -79,7 +79,7 @@ export default function Home() {
                 Exposez vos produits à des milliers d'acheteurs potentiels à travers le Bénin et au-delà.
               </p>
             </div>
-             <div className="flex flex-col items-center">
+             <div className="flex flex-col items-center p-4">
               <div className="bg-accent/20 p-4 rounded-full mb-4">
                 <Wallet className="h-8 w-8 text-accent" />
               </div>
@@ -88,7 +88,7 @@ export default function Home() {
                 Un système de commande direct et une communication facile avec les vendeurs pour des achats en toute confiance.
               </p>
             </div>
-             <div className="flex flex-col items-center">
+             <div className="flex flex-col items-center p-4">
               <div className="bg-primary/20 p-4 rounded-full mb-4">
                 <ShoppingBag className="h-8 w-8 text-primary" />
               </div>
@@ -110,54 +110,54 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-10 items-center">
             {/* For Sellers */}
             <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-accent">Pour les Vendeurs</h3>
-                <ol className="relative border-l border-gray-200 dark:border-gray-700 space-y-8">                  
+                <h3 className="text-2xl font-bold text-primary">Pour les Vendeurs</h3>
+                <ol className="relative border-l border-border/20 dark:border-border/50 space-y-8">                  
                     <li className="ml-6">            
-                        <span className="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -left-4 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+                        <span className="absolute flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full -left-4 ring-8 ring-background">
                             <UserPlus className="w-4 h-4 text-primary"/>
                         </span>
-                        <h4 className="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">Créez votre boutique</h4>
+                        <h4 className="flex items-center mb-1 text-lg font-semibold text-foreground">Créez votre boutique</h4>
                         <p className="text-base font-normal text-muted-foreground">Inscrivez-vous en quelques clics et soumettez votre profil de vendeur pour approbation.</p>
                     </li>
                     <li className="ml-6">
-                        <span className="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -left-4 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+                        <span className="absolute flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full -left-4 ring-8 ring-background">
                             <ShoppingBag className="w-4 h-4 text-primary"/>
                         </span>
-                        <h4 className="mb-1 text-lg font-semibold text-gray-900 dark:text-white">Ajoutez vos produits</h4>
+                        <h4 className="mb-1 text-lg font-semibold text-foreground">Ajoutez vos produits</h4>
                         <p className="text-base font-normal text-muted-foreground">Utilisez votre tableau de bord pour mettre en ligne vos créations, gérer vos prix et descriptions.</p>
                     </li>
                     <li className="ml-6">
-                        <span className="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -left-4 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
+                        <span className="absolute flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full -left-4 ring-8 ring-background">
                            <Wallet className="w-4 h-4 text-primary"/>
                         </span>
-                        <h4 className="mb-1 text-lg font-semibold text-gray-900 dark:text-white">Gérez vos commandes</h4>
+                        <h4 className="mb-1 text-lg font-semibold text-foreground">Gérez vos commandes</h4>
                         <p className="text-base font-normal text-muted-foreground">Recevez les commandes des clients, communiquez avec eux et organisez la livraison.</p>
                     </li>
                 </ol>
             </div>
              {/* For Buyers */}
             <div className="space-y-6">
-                 <h3 className="text-2xl font-bold text-primary">Pour les Clients</h3>
-                 <ol className="relative border-l border-gray-200 dark:border-gray-700 space-y-8">                  
+                 <h3 className="text-2xl font-bold text-accent">Pour les Clients</h3>
+                 <ol className="relative border-l border-border/20 dark:border-border/50 space-y-8">                  
                     <li className="ml-6">            
-                        <span className="absolute flex items-center justify-center w-8 h-8 bg-green-100 rounded-full -left-4 ring-8 ring-white dark:ring-gray-900 dark:bg-green-900">
-                            <Search className="w-4 h-4 text-green-600"/>
+                        <span className="absolute flex items-center justify-center w-8 h-8 bg-accent/10 rounded-full -left-4 ring-8 ring-background">
+                            <Search className="w-4 h-4 text-accent"/>
                         </span>
-                        <h4 className="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">Découvrez des trésors</h4>
+                        <h4 className="flex items-center mb-1 text-lg font-semibold text-foreground">Découvrez des trésors</h4>
                         <p className="text-base font-normal text-muted-foreground">Explorez des milliers de produits uniques faits par des artisans et vendeurs locaux.</p>
                     </li>
                     <li className="ml-6">
-                        <span className="absolute flex items-center justify-center w-8 h-8 bg-green-100 rounded-full -left-4 ring-8 ring-white dark:ring-gray-900 dark:bg-green-900">
-                            <LogIn className="w-4 h-4 text-green-600"/>
+                        <span className="absolute flex items-center justify-center w-8 h-8 bg-accent/10 rounded-full -left-4 ring-8 ring-background">
+                            <LogIn className="w-4 h-4 text-accent"/>
                         </span>
-                        <h4 className="mb-1 text-lg font-semibold text-gray-900 dark:text-white">Commandez facilement</h4>
+                        <h4 className="mb-1 text-lg font-semibold text-foreground">Commandez facilement</h4>
                         <p className="text-base font-normal text-muted-foreground">Créez votre compte client, remplissez vos informations et passez commande en toute simplicité.</p>
                     </li>
                     <li className="ml-6">
-                        <span className="absolute flex items-center justify-center w-8 h-8 bg-green-100 rounded-full -left-4 ring-8 ring-white dark:ring-gray-900 dark:bg-green-900">
-                           <Store className="w-4 h-4 text-green-600"/>
+                        <span className="absolute flex items-center justify-center w-8 h-8 bg-accent/10 rounded-full -left-4 ring-8 ring-background">
+                           <Store className="w-4 h-4 text-accent"/>
                         </span>
-                        <h4 className="mb-1 text-lg font-semibold text-gray-900 dark:text-white">Soutenez le local</h4>
+                        <h4 className="mb-1 text-lg font-semibold text-foreground">Soutenez le local</h4>
                         <p className="text-base font-normal text-muted-foreground">Contactez directement les vendeurs et recevez des produits authentiques tout en soutenant l'économie locale.</p>
                     </li>
                 </ol>

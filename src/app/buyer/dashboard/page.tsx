@@ -83,8 +83,8 @@ export default function BuyerDashboardPage() {
                                     <TableCell>{new Date(order.orderDate).toLocaleDateString('fr-FR')}</TableCell>
                                     <TableCell>
                                         <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'} className={
-                                            order.status === 'pending' ? 'bg-yellow-400' : 
-                                            order.status === 'shipped' ? 'bg-blue-400' : 'bg-green-500'
+                                            order.status === 'pending' ? 'bg-yellow-400 text-yellow-900' : 
+                                            order.status === 'shipped' ? 'bg-blue-400 text-blue-900' : 'bg-green-500 text-green-900'
                                         }>
                                             {order.status === 'pending' && 'En attente'}
                                             {order.status === 'shipped' && 'Expédiée'}
