@@ -46,11 +46,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const userData = userDocSnap.data() as AppUser;
           setUser({ ...userData, uid: firebaseUser.uid });
         } else {
+          // This case can happen if the user is deleted from Firestore but not from Auth
           setUser(null); 
         }
       } else {
-        // If no firebase user, we need to check if the current user is the mock admin.
-        // If it is, we preserve it. Otherwise, set to null.
+        // If there's no Firebase user, we need to check if we are keeping the mock admin user.
+        // If the current user state is the admin, we do nothing to prevent being logged out.
+        // Otherwise, we ensure the user is logged out (state is null).
         setUser(currentUser => {
             if (currentUser && currentUser.uid === 'admin_user') {
                 return currentUser;
