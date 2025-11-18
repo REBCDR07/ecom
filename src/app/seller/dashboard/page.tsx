@@ -41,13 +41,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { useOrders } from "@/hooks/use-orders";
 
-function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: { products: Product[], user: User, setProductToDelete: (id: string | null) => void, refreshSellerData: () => void }) {
+function ProductsTab({ products, user, refreshSellerData }: { products: Product[], user: User, refreshSellerData: () => void }) {
   const { deleteProduct } = useSellers();
   const { toast } = useToast();
   const [isAlertOpen, setAlertOpen] = useState(false);
@@ -55,7 +54,6 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
 
   const handleDeleteClick = (productId: string) => {
     setCurrentProductId(productId);
-    setProductToDelete(productId);
     setAlertOpen(true);
   };
 
@@ -68,7 +66,6 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
       title: 'Produit supprimé',
       description: 'Votre produit a été supprimé avec succès.',
     });
-    setProductToDelete(null);
     setCurrentProductId(null);
     setAlertOpen(false);
   };
@@ -119,11 +116,9 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
                           <Link href={`/seller/dashboard/edit-product/${product.id}`}>Modifier</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <AlertDialogTrigger asChild>
-                          <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={() => handleDeleteClick(product.id)}>
+                        <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={() => handleDeleteClick(product.id)}>
                             Supprimer
-                          </DropdownMenuItem>
-                        </AlertDialogTrigger>
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -149,7 +144,7 @@ function ProductsTab({ products, user, setProductToDelete, refreshSellerData }: 
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setProductToDelete(null)}>Annuler</AlertDialogCancel>
+          <AlertDialogCancel onClick={() => setAlertOpen(false)}>Annuler</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">
             Supprimer
           </AlertDialogAction>
@@ -250,17 +245,16 @@ function OrdersTab({ orders, sellerId }: { orders: Order[], sellerId: string }) 
 
 export default function SellerDashboard() {
   const { user } = useAuthContext();
+  const { getSellerById } = useSellers();
   const { getOrdersForSeller } = useOrders();
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState({ totalSales: "0 F CFA", totalOrders: 0, productsOnline: 0 });
-  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   const refreshSellerData = useCallback(() => {
-    if (user && user.role === 'seller' && typeof window !== 'undefined') {
-        const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
-        const currentSeller = approvedSellers.find(s => s.uid === user.uid);
+    if (user && user.role === 'seller') {
+        const currentSeller = getSellerById(user.uid);
         if (currentSeller) {
           setSeller(currentSeller);
           const sellerProducts = currentSeller.products || [];
@@ -278,11 +272,11 @@ export default function SellerDashboard() {
           });
         }
     }
-  }, [user, getOrdersForSeller]);
+  }, [user, getSellerById, getOrdersForSeller]);
 
   useEffect(() => {
     refreshSellerData();
-  }, [user, refreshSellerData]);
+  }, [refreshSellerData]);
 
   if (!user || !seller) {
     return <div className="p-8"><p>Chargement du tableau de bord...</p></div>;
@@ -331,7 +325,7 @@ export default function SellerDashboard() {
                {user && <OrdersTab orders={orders} sellerId={user.uid} />}
             </TabsContent>
             <TabsContent value="products" className="mt-4">
-              {seller && user && <ProductsTab products={products} user={user} setProductToDelete={setProductToDelete} refreshSellerData={refreshSellerData} />}
+              {user && <ProductsTab products={products} user={user} refreshSellerData={refreshSellerData} />}
             </TabsContent>
         </Tabs>
     </div>

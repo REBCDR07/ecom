@@ -4,6 +4,7 @@
 import { Seller, SellerApplication, Product } from '@/lib/types';
 import { useCallback } from 'react';
 import { useNotifications } from './use-notifications';
+import { useAuthContext } from './use-auth-provider';
 
 const PENDING_SELLERS_KEY = 'pending_sellers';
 const APPROVED_SELLERS_KEY = 'approved_sellers';
@@ -11,8 +12,9 @@ const APPROVED_SELLERS_KEY = 'approved_sellers';
 
 export const useSellers = () => {
     const { createNotification } = useNotifications();
+    const { signUp } = useAuthContext();
     
-    const getFromStorage = useCallback((key: string) => {
+    const getFromStorage = useCallback((key: string): any[] => {
         if (typeof window === 'undefined') return [];
         try {
             const item = localStorage.getItem(key);
@@ -54,49 +56,48 @@ export const useSellers = () => {
         });
     }, [getPendingSellers, saveToStorage, createNotification]);
 
-    const approveSeller = useCallback((sellerId: string) => {
+    const approveSeller = useCallback(async (sellerId: string) => {
         const pendingSellers: SellerApplication[] = getFromStorage(PENDING_SELLERS_KEY);
         const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
 
         const sellerToApprove = pendingSellers.find(s => s.id === sellerId);
 
-        if (sellerToApprove) {
-            const remainingPending = pendingSellers.filter(s => s.id !== sellerId);
-            
-            const defaultProfilePic = `https://picsum.photos/seed/${sellerToApprove.id}/100/100`;
-            const defaultBannerPic = `https://picsum.photos/seed/${sellerToApprove.id}-banner/1600/400`;
+        if (sellerToApprove && sellerToApprove.password) {
+            try {
+                // 1. Create the Firebase Auth user
+                const userCredential = await signUp(sellerToApprove.email, sellerToApprove.password, {
+                    role: 'seller',
+                    displayName: `${sellerToApprove.firstName} ${sellerToApprove.lastName}`
+                });
+                const firebaseUser = userCredential.user;
 
-            const { id, ...restOfApp } = sellerToApprove;
+                // 2. Create the seller profile in localStorage
+                const newSellerProfile: Seller = {
+                    uid: firebaseUser.uid,
+                    role: 'seller',
+                    email: sellerToApprove.email,
+                    displayName: `${sellerToApprove.firstName} ${sellerToApprove.lastName}`,
+                    companyName: sellerToApprove.companyName,
+                    profilePicture: sellerToApprove.profilePicture || `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
+                    bannerPicture: sellerToApprove.bannerPicture || `https://picsum.photos/seed/${firebaseUser.uid}-banner/1600/400`,
+                    imageHint: 'portrait',
+                    phone: sellerToApprove.phone,
+                    whatsapp: sellerToApprove.whatsapp,
+                    address: sellerToApprove.address,
+                    products: []
+                };
 
-            const newSellerUser = {
-                // This data will be used to create the actual user
-                email: sellerToApprove.email,
-                password: sellerToApprove.password,
-            };
+                // 3. Update localStorage
+                const remainingPending = pendingSellers.filter(s => s.id !== sellerId);
+                saveToStorage(PENDING_SELLERS_KEY, remainingPending);
+                saveToStorage(APPROVED_SELLERS_KEY, [...approvedSellers, newSellerProfile]);
 
-            const newSellerProfile: Seller = {
-                uid: sellerToApprove.id, // Using the application ID as the UID for now.
-                role: 'seller',
-                email: sellerToApprove.email,
-                displayName: `${sellerToApprove.firstName} ${sellerToApprove.lastName}`,
-                companyName: sellerToApprove.companyName,
-                profilePicture: sellerToApprove.profilePicture || defaultProfilePic,
-                bannerPicture: sellerToApprove.bannerPicture || defaultBannerPic,
-                imageHint: 'portrait',
-                phone: sellerToApprove.phone,
-                whatsapp: sellerToApprove.whatsapp,
-                address: sellerToApprove.address,
-                products: []
-            };
-
-            saveToStorage(PENDING_SELLERS_KEY, remainingPending);
-            saveToStorage(APPROVED_SELLERS_KEY, [...approvedSellers, newSellerProfile]);
-            
-            // This is where you would call the actual `signUp` function.
-            // For now, we simulate it. The admin will create the account.
-            // This part of the logic needs to be connected to the useAuth `signUp`.
+            } catch (error) {
+                console.error("Failed to approve seller:", error);
+                throw error; // Re-throw to be caught by the UI
+            }
         }
-    }, [getFromStorage, saveToStorage]);
+    }, [getFromStorage, saveToStorage, signUp]);
 
     const rejectSeller = useCallback((sellerId: string) => {
         const pendingSellers: SellerApplication[] = getFromStorage(PENDING_SELLERS_KEY);
@@ -157,6 +158,14 @@ export const useSellers = () => {
         return approvedSellers.find(s => s.uid === sellerId) || null;
     }, [getFromStorage]);
 
+    const updateSellerProfile = useCallback((sellerId: string, profileData: Partial<Seller>) => {
+        const sellers = getFromStorage(APPROVED_SELLERS_KEY) as Seller[];
+        const updatedSellers = sellers.map(seller => 
+            seller.uid === sellerId ? { ...seller, ...profileData } : seller
+        );
+        saveToStorage(APPROVED_SELLERS_KEY, updatedSellers);
+    }, [getFromStorage, saveToStorage]);
+
     return {
         getPendingSellers,
         addPendingSeller,
@@ -166,5 +175,6 @@ export const useSellers = () => {
         updateProduct,
         deleteProduct,
         getSellerById,
+        updateSellerProfile
     };
 };

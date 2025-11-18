@@ -18,7 +18,7 @@ import { useEffect, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import NotificationsPopover from "@/components/shared/notifications-popover"
-import { Notification, useNotifications } from "@/hooks/use-notifications"
+import { useNotifications } from "@/hooks/use-notifications"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export default function SellerLayout({
@@ -63,6 +63,7 @@ export default function SellerLayout({
   }, [user, router, toast]);
 
   const handleLogout = async () => {
+    if (!signOut) return;
     await signOut();
     toast({ title: "Vous avez été déconnecté."})
     router.push('/login');

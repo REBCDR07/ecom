@@ -36,7 +36,7 @@ function MainDashboard({
   pendingSellers: SellerApplication[];
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
-  stats: { totalSales: number; totalProducts: number; totalClients: number };
+  stats: { totalSales: number; totalProducts: number; totalClients: number; approvedSellersCount: number };
 }) {
   return (
     <div className="space-y-4">
@@ -63,12 +63,12 @@ function MainDashboard({
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clients inscrits</CardTitle>
+            <CardTitle className="text-sm font-medium">Clients & Vendeurs</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+{stats.totalClients}</div>
-            <p className="text-xs text-muted-foreground">Nombre total de clients</p>
+            <div className="text-2xl font-bold">+{stats.totalClients + stats.approvedSellersCount}</div>
+            <p className="text-xs text-muted-foreground">{stats.totalClients} clients & {stats.approvedSellersCount} vendeurs</p>
           </CardContent>
         </Card>
         <Card>
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const router = useRouter();
   const { signOut } = useAuthContext();
-  const [stats, setStats] = useState({ totalSales: 0, totalProducts: 0, totalClients: 0 });
+  const [stats, setStats] = useState({ totalSales: 0, totalProducts: 0, totalClients: 0, approvedSellersCount: 0 });
 
   const refreshData = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -140,17 +140,16 @@ export default function AdminDashboard() {
     // Refresh pending sellers
     setPendingSellers(getPendingSellers());
 
-    // Calculate stats
+    // Calculate stats from localStorage
     const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
+    const allUsers: AppUser[] = JSON.parse(localStorage.getItem('users') || '[]'); // Assuming we store all users
     const allOrders: Order[] = JSON.parse(localStorage.getItem('marketconnect_orders') || '[]');
-    // The list of buyers isn't explicitly stored, so we count unique buyer IDs from orders.
-    const allBuyerIds = new Set(allOrders.map(o => o.buyerId));
-
-    const totalSales = allOrders.reduce((sum, order) => sum + order.price, 0);
+    
+    const totalSales = allOrders.reduce((sum, order) => sum + order.price * order.quantity, 0);
     const totalProducts = approvedSellers.reduce((sum, seller) => sum + (seller.products?.length || 0), 0);
-    const totalClients = allBuyerIds.size; // Using the size of the Set for unique buyers
+    const totalClients = allUsers.filter(u => u.role === 'buyer').length;
 
-    setStats({ totalSales, totalProducts, totalClients });
+    setStats({ totalSales, totalProducts, totalClients, approvedSellersCount: approvedSellers.length });
 
   }, [getPendingSellers]);
 
@@ -159,13 +158,21 @@ export default function AdminDashboard() {
   }, [refreshData]);
 
 
-  const handleApprove = (id: string) => {
-    approveSeller(id);
-    refreshData();
-    toast({
-        title: 'Vendeur approuvé',
-        description: 'Le vendeur peut maintenant se connecter et utiliser la plateforme.',
-    });
+  const handleApprove = async (id: string) => {
+    try {
+        await approveSeller(id);
+        refreshData();
+        toast({
+            title: 'Vendeur approuvé',
+            description: 'Le compte vendeur a été créé et peut maintenant se connecter.',
+        });
+    } catch(error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Échec de l\'approbation',
+            description: error.message || 'Une erreur est survenue lors de la création du compte.',
+        });
+    }
   }
 
   const handleReject = (id: string) => {

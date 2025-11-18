@@ -114,7 +114,7 @@ export default function AddProductPage() {
             
             <div className="space-y-2">
               <Label htmlFor="image">Image du produit</Label>
-              <Input id="image" name="image" type="file" accept="image/*" required />
+              <Input id="image" name="image" type="file" accept="image/*" />
             </div>
 
             <div className="flex justify-end gap-2">

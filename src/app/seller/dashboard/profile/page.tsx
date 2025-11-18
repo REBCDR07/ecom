@@ -13,28 +13,70 @@ import { Seller } from "@/lib/types"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
+import { useForm, SubmitHandler } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+
+const profileSchema = z.object({
+  companyName: z.string().min(2, "Le nom de l'entreprise est requis"),
+  bio: z.string().optional(),
+  email: z.string().email("L'email est invalide"),
+  phone: z.string().min(8, "Numéro de téléphone invalide"),
+  whatsapp: z.string().min(8, "Numéro WhatsApp invalide"),
+  address: z.string().min(5, "L'adresse est requise"),
+  googleMaps: z.string().url("Veuillez entrer une URL valide pour Google Maps").optional().or(z.literal('')),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ManageSellerProfilePage() {
     const { user } = useAuthContext();
-    const { getSellerById, approveSeller } = useSellers(); // Using approveSeller to update
+    const { getSellerById, updateSellerProfile } = useSellers();
     const { toast } = useToast();
-    const [seller, setSeller] = useState<Seller | null>(null);
     const router = useRouter();
+
+    const form = useForm<ProfileFormValues>({
+      resolver: zodResolver(profileSchema),
+      defaultValues: {
+        companyName: '',
+        bio: '',
+        email: '',
+        phone: '',
+        whatsapp: '',
+        address: '',
+        googleMaps: '',
+      }
+    });
+
+    const [seller, setSeller] = useState<Seller | null>(null);
 
     useEffect(() => {
         if (user && user.role === 'seller') {
             const sellerData = getSellerById(user.uid);
-            setSeller(sellerData);
+            if (sellerData) {
+              setSeller(sellerData);
+              form.reset({
+                companyName: sellerData.companyName,
+                bio: "Artisans passionnés, nous créons des pièces uniques qui racontent une histoire. Inspirés par la richesse de la culture béninoise, chaque article est fait main avec amour et dévouement.",
+                email: sellerData.email,
+                phone: sellerData.phone,
+                whatsapp: sellerData.whatsapp,
+                address: sellerData.address,
+                googleMaps: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sellerData.address)}`,
+              });
+            }
         }
-    }, [user, getSellerById]);
+    }, [user, getSellerById, form]);
 
-    const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        // In this mockup, saving is disabled, but we show a toast.
+    const onSubmit: SubmitHandler<ProfileFormValues> = (data) => {
+        if (!user) return;
+        updateSellerProfile(user.uid, data);
         toast({
-            title: "Fonctionnalité non disponible",
-            description: "La mise à jour du profil sera bientôt disponible.",
-        })
+            title: "Profil mis à jour !",
+            description: "Vos informations ont été sauvegardées avec succès.",
+        });
+        router.push('/seller/dashboard');
     }
 
     if (!user || !seller) {
@@ -53,7 +95,8 @@ export default function ManageSellerProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-8" onSubmit={handleUpdate}>
+          <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Profile & Banner Images */}
             <div className="space-y-4">
               <div>
@@ -79,40 +122,35 @@ export default function ManageSellerProfilePage() {
 
             {/* Company Info */}
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="company-name">Nom de l'entreprise</Label>
-                <Input id="company-name" name="companyName" defaultValue={seller.companyName} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="bio">Biographie / Description de la boutique</Label>
-                <Textarea id="bio" name="bio" defaultValue={"Artisans passionnés, nous créons des pièces uniques qui racontent une histoire. Inspirés par la richesse de la culture béninoise, chaque article est fait main avec amour et dévouement."} rows={4} />
-              </div>
+              <FormField control={form.control} name="companyName" render={({ field }) => (
+                  <FormItem><FormLabel>Nom de l'entreprise</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+               <FormField control={form.control} name="bio" render={({ field }) => (
+                  <FormItem><FormLabel>Biographie / Description</FormLabel><FormControl><Textarea {...field} rows={4} /></FormControl><FormMessage /></FormItem>
+              )} />
             </div>
 
             {/* Contact Info */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Informations de contact</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" defaultValue={seller.email} />
-                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="phone">Numéro de téléphone</Label>
-                    <Input id="phone" name="phone" type="tel" defaultValue={seller.phone} />
-                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="whatsapp">Numéro WhatsApp</Label>
-                    <Input id="whatsapp" name="whatsapp" type="tel" defaultValue={seller.whatsapp} />
-                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="address">Adresse</Label>
-                    <Input id="address" name="address" defaultValue={seller.address} />
-                 </div>
-                 <div className="space-y-2 col-span-full">
-                    <Label htmlFor="google-maps">Lien Google Maps</Label>
-                    <Input id="google-maps" name="google-maps" defaultValue={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(seller.address)}`} />
-                 </div>
+                  <FormField control={form.control} name="email" render={({ field }) => (
+                      <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="phone" render={({ field }) => (
+                      <FormItem><FormLabel>Numéro de téléphone</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="whatsapp" render={({ field }) => (
+                      <FormItem><FormLabel>Numéro WhatsApp</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name="address" render={({ field }) => (
+                      <FormItem><FormLabel>Adresse</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <div className="col-span-full">
+                     <FormField control={form.control} name="googleMaps" render={({ field }) => (
+                        <FormItem><FormLabel>Lien Google Maps</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                  </div>
               </div>
             </div>
 
@@ -121,6 +159,7 @@ export default function ManageSellerProfilePage() {
                 <Button type="submit">Sauvegarder les modifications</Button>
             </div>
           </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

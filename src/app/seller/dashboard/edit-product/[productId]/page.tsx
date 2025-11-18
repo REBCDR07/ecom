@@ -27,7 +27,7 @@ export default function EditProductPage() {
   const params = useParams();
   const productId = Array.isArray(params.productId) ? params.productId[0] : params.productId;
 
-  const { updateProduct } = useSellers()
+  const { getSellerById, updateProduct } = useSellers()
   const { user } = useAuthContext()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,9 +35,8 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    if (user && user.role === 'seller' && productId && typeof window !== 'undefined') {
-        const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
-        const seller = approvedSellers.find(s => s.uid === user.uid);
+    if (user && user.role === 'seller' && productId) {
+        const seller = getSellerById(user.uid);
         if (seller) {
             const foundProduct = seller.products?.find(p => p.id === productId);
             if (foundProduct) {
@@ -47,7 +46,7 @@ export default function EditProductPage() {
             }
         }
     }
-  }, [user, productId]);
+  }, [user, productId, getSellerById]);
 
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
