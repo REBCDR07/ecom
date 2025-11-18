@@ -1,4 +1,5 @@
 
+
 "use client";
 import { useAuthContext } from "@/hooks/use-auth-provider";
 import { useOrders } from "@/hooks/use-orders";
@@ -11,16 +12,33 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
+function getStatusBadge(status: Order['status']) {
+    switch(status) {
+        case 'pending':
+            return <Badge className="bg-yellow-400 text-yellow-900 hover:bg-yellow-400/80">En attente de paiement</Badge>;
+        case 'awaiting_confirmation':
+            return <Badge className="bg-orange-400 text-orange-900 hover:bg-orange-400/80">En attente de confirmation</Badge>;
+        case 'shipped':
+            return <Badge className="bg-blue-400 text-blue-900 hover:bg-blue-400/80">Expédiée</Badge>;
+        case 'delivered':
+            return <Badge className="bg-green-500 text-green-900 hover:bg-green-500/80">Livrée</Badge>;
+        default:
+            return <Badge variant="secondary">Inconnu</Badge>;
+    }
+}
+
 
 export default function BuyerDashboardPage() {
-    const { user } = useAuthContext();
+    const { user, loading } = useAuthContext();
     const { getOrdersForBuyer } = useOrders();
     const [orders, setOrders] = useState<Order[]>([]);
     const router = useRouter();
     const { toast } = useToast();
 
     useEffect(() => {
-        if (user === undefined) return; // Wait for auth state to load
+        if (loading) return; // Wait for auth state to load
 
         if (!user || user.role !== 'buyer') {
             toast({
@@ -30,12 +48,12 @@ export default function BuyerDashboardPage() {
             });
             router.replace('/login');
         } else {
-            const buyerOrders = getOrdersForBuyer(user.uid);
+            const buyerOrders = getOrdersForBuyer(user.id);
             setOrders(buyerOrders);
         }
-    }, [user, getOrdersForBuyer, router, toast]);
+    }, [user, loading, getOrdersForBuyer, router, toast]);
 
-    if (!user || user.role !== 'buyer') {
+    if (loading || !user || user.role !== 'buyer') {
         return <div className="flex min-h-[calc(100vh-57px)] items-center justify-center"><p>Redirection...</p></div>;
     }
 
@@ -56,10 +74,10 @@ export default function BuyerDashboardPage() {
                                     <span className="sr-only">Image</span>
                                 </TableHead>
                                 <TableHead>Produit</TableHead>
-                                <TableHead>Vendeur</TableHead>
                                 <TableHead>Date</TableHead>
                                 <TableHead>Statut</TableHead>
                                 <TableHead className="text-right">Prix</TableHead>
+                                 <TableHead><span className="sr-only">Actions</span></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -74,25 +92,22 @@ export default function BuyerDashboardPage() {
                                             width="64"
                                         />
                                     </TableCell>
-                                    <TableCell className="font-medium">{order.productName}</TableCell>
-                                    <TableCell>
-                                         <Link href={`/seller/${order.sellerId}`} className="hover:underline text-primary">
-                                            {/* This logic might be faulty if seller name isn't stored on product. Let's find it from the order itself if possible */}
-                                            {orders.find(o => o.productId === order.productId)?.productName.split(" par ")[1] || "Vendeur"}
+                                    <TableCell className="font-medium">
+                                        <p>{order.productName}</p>
+                                        <Link href={`/seller/${order.sellerId}`} className="text-xs text-muted-foreground hover:underline">
+                                            par {order.sellerPhone}
                                         </Link>
                                     </TableCell>
                                     <TableCell>{new Date(order.orderDate).toLocaleDateString('fr-FR')}</TableCell>
                                     <TableCell>
-                                        <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'} className={
-                                            order.status === 'pending' ? 'bg-yellow-400 text-yellow-900' : 
-                                            order.status === 'shipped' ? 'bg-blue-400 text-blue-900' : 'bg-green-500 text-green-900'
-                                        }>
-                                            {order.status === 'pending' && 'En attente'}
-                                            {order.status === 'shipped' && 'Expédiée'}
-                                            {order.status === 'delivered' && 'Livrée'}
-                                        </Badge>
+                                        {getStatusBadge(order.status)}
                                     </TableCell>
                                     <TableCell className="text-right">{order.price.toLocaleString('fr-FR')} F CFA</TableCell>
+                                     <TableCell className="text-right">
+                                        <Button asChild variant="outline" size="sm">
+                                            <Link href={`/buyer/dashboard/${order.id}`}>Gérer</Link>
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>
@@ -108,3 +123,4 @@ export default function BuyerDashboardPage() {
         </div>
     );
 }
+

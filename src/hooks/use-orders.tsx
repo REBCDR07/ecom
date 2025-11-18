@@ -1,11 +1,13 @@
 
+
 "use client";
 
 import { useCallback } from 'react';
-import { Order, Product, User } from '@/lib/types';
+import { Order, Product, User, Seller } from '@/lib/types';
 import { useNotifications } from './use-notifications';
 
 const ORDERS_KEY = 'marketconnect_orders';
+const APPROVED_SELLERS_KEY = 'approved_sellers';
 
 export const useOrders = () => {
     const { createNotification } = useNotifications();
@@ -32,6 +34,14 @@ export const useOrders = () => {
 
     const createOrder = useCallback((product: Product, buyer: User, orderDetails: Pick<Order, 'buyerInfo'>) => {
         const orders: Order[] = getFromStorage(ORDERS_KEY);
+        const approvedSellers: Seller[] = getFromStorage(APPROVED_SELLERS_KEY);
+        const seller = approvedSellers.find(s => s.id === product.sellerId);
+
+        if (!seller) {
+            console.error("Seller not found for product:", product.id);
+            return;
+        }
+
         const newOrder: Order = {
             id: `order_${crypto.randomUUID()}`,
             productId: product.id,
@@ -40,7 +50,8 @@ export const useOrders = () => {
             price: product.promotionalPrice || product.price,
             quantity: 1, // Defaulting to 1 for simplicity
             sellerId: product.sellerId,
-            buyerId: buyer.uid,
+            sellerPhone: seller.phone, // Store seller's phone on the order
+            buyerId: buyer.id,
             ...orderDetails,
             orderDate: new Date().toISOString(),
             status: 'pending',
@@ -53,7 +64,7 @@ export const useOrders = () => {
             userType: 'seller',
             type: 'new_order',
             message: `Nouvelle commande pour : ${product.name}.`,
-            link: '/seller/dashboard'
+            link: `/seller/dashboard`
         });
 
     }, [getFromStorage, saveToStorage, createNotification]);
@@ -68,19 +79,51 @@ export const useOrders = () => {
         return allOrders.filter(order => order.buyerId === buyerId).sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
     }, [getFromStorage]);
 
-    const updateOrderStatus = useCallback((orderId: string, status: 'pending' | 'shipped' | 'delivered') => {
+    const getOrderById = useCallback((orderId: string): Order | null => {
+        const allOrders: Order[] = getFromStorage(ORDERS_KEY);
+        return allOrders.find(order => order.id === orderId) || null;
+    }, [getFromStorage]);
+
+    const updateOrderStatus = useCallback((orderId: string, status: Order['status']) => {
         const allOrders: Order[] = getFromStorage(ORDERS_KEY);
         const updatedOrders = allOrders.map(order => 
             order.id === orderId ? { ...order, status } : order
         );
         saveToStorage(ORDERS_KEY, updatedOrders);
     }, [getFromStorage, saveToStorage]);
+    
+    const submitPaymentProof = useCallback((orderId: string, proofDataUrl: string) => {
+        const allOrders: Order[] = getFromStorage(ORDERS_KEY);
+        let sellerToNotifyId: string | null = null;
+
+        const updatedOrders = allOrders.map(order => {
+            if (order.id === orderId) {
+                sellerToNotifyId = order.sellerId;
+                return { ...order, status: 'awaiting_confirmation' as const, paymentProof: proofDataUrl };
+            }
+            return order;
+        });
+
+        saveToStorage(ORDERS_KEY, updatedOrders);
+
+        if(sellerToNotifyId) {
+            createNotification({
+                userId: sellerToNotifyId,
+                userType: 'seller',
+                type: 'payment_proof_submitted',
+                message: `Preuve de paiement reçue pour la commande #${orderId.slice(0,6)}...`,
+                link: `/seller/dashboard`
+            });
+        }
+    }, [createNotification, getFromStorage, saveToStorage]);
 
 
     return {
         createOrder,
         getOrdersForSeller,
         getOrdersForBuyer,
+        getOrderById,
         updateOrderStatus,
+        submitPaymentProof
     };
 };

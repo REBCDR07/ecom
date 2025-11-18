@@ -1,4 +1,5 @@
 
+
 "use client";
 import Link from "next/link";
 import {
@@ -41,6 +42,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogPortal,
+  AlertDialogOverlay,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
@@ -59,7 +63,7 @@ function ProductsTab({ products, user, refreshSellerData }: { products: Product[
 
   const handleConfirmDelete = () => {
     if (!user || !currentProductId) return;
-    deleteProduct(user.uid, currentProductId);
+    deleteProduct(user.id, currentProductId);
     refreshSellerData();
     toast({
       variant: 'destructive',
@@ -154,7 +158,50 @@ function ProductsTab({ products, user, refreshSellerData }: { products: Product[
   );
 }
 
-function OrdersTab({ orders, sellerId }: { orders: Order[], sellerId: string }) {
+
+function ViewProofDialog({ proofUrl, orderId }: { proofUrl: string; orderId: string }) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="secondary" size="sm">Voir la preuve</Button>
+      </AlertDialogTrigger>
+      <AlertDialogPortal>
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Preuve de Paiement (Commande #{orderId.slice(0, 6)})</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vérifiez la capture d'écran pour confirmer le paiement.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="relative aspect-video w-full rounded-md overflow-hidden border mt-4">
+              <Image src={proofUrl} alt={`Preuve de paiement pour la commande ${orderId}`} layout="fill" objectFit="contain" />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Fermer</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogPortal>
+    </AlertDialog>
+  )
+}
+
+function getStatusBadge(status: Order['status']) {
+    switch(status) {
+        case 'pending':
+            return <Badge className="bg-yellow-400 text-yellow-900 hover:bg-yellow-400/80">Paiement en attente</Badge>;
+        case 'awaiting_confirmation':
+            return <Badge className="bg-orange-400 text-orange-900 hover:bg-orange-400/80">Confirmation requise</Badge>;
+        case 'shipped':
+            return <Badge className="bg-blue-400 text-blue-900 hover:bg-blue-400/80">Expédiée</Badge>;
+        case 'delivered':
+            return <Badge className="bg-green-500 text-green-900 hover:bg-green-500/80">Livrée</Badge>;
+        default:
+            return <Badge variant="secondary">Inconnu</Badge>;
+    }
+}
+
+function OrdersTab({ orders, sellerId, refreshSellerData }: { orders: Order[], sellerId: string, refreshSellerData: () => void }) {
     const { updateOrderStatus } = useOrders();
     const [currentOrders, setCurrentOrders] = useState(orders);
 
@@ -162,10 +209,9 @@ function OrdersTab({ orders, sellerId }: { orders: Order[], sellerId: string }) 
         setCurrentOrders(orders);
     }, [orders]);
 
-    const handleStatusChange = (orderId: string, newStatus: 'pending' | 'shipped' | 'delivered') => {
+    const handleStatusChange = (orderId: string, newStatus: Order['status']) => {
         updateOrderStatus(orderId, newStatus);
-        const updatedOrders = currentOrders.map(o => o.id === orderId ? { ...o, status: newStatus } : o);
-        setCurrentOrders(updatedOrders);
+        refreshSellerData();
     };
 
     return (
@@ -180,21 +226,15 @@ function OrdersTab({ orders, sellerId }: { orders: Order[], sellerId: string }) 
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="hidden w-[100px] sm:table-cell">
-                                <span className="sr-only">Image</span>
-                            </TableHead>
                             <TableHead>Produit</TableHead>
                             <TableHead>Client</TableHead>
                             <TableHead>Statut</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {currentOrders.length > 0 ? currentOrders.map(order => (
                             <TableRow key={order.id}>
-                                <TableCell className="hidden sm:table-cell">
-                                    <Image alt={order.productName} className="aspect-square rounded-md object-cover" height="64" src={order.productImage} width="64" />
-                                </TableCell>
                                 <TableCell className="font-medium">{order.productName}</TableCell>
                                 <TableCell>
                                     <div className="font-medium">{order.buyerInfo.firstName} {order.buyerInfo.lastName}</div>
@@ -203,28 +243,24 @@ function OrdersTab({ orders, sellerId }: { orders: Order[], sellerId: string }) 
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'} className={
-                                        order.status === 'pending' ? 'bg-yellow-400 text-yellow-900' : 
-                                        order.status === 'shipped' ? 'bg-blue-400 text-blue-900' : 'bg-green-500 text-green-900'
-                                    }>
-                                        {order.status === 'pending' && 'En attente'}
-                                        {order.status === 'shipped' && 'Expédiée'}
-                                        {order.status === 'delivered' && 'Livrée'}
-                                    </Badge>
+                                    {getStatusBadge(order.status)}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="text-right">
+                                    {order.status === 'awaiting_confirmation' && order.paymentProof && (
+                                        <ViewProofDialog proofUrl={order.paymentProof} orderId={order.id} />
+                                    )}
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                                            <Button aria-haspopup="true" size="icon" variant="ghost" className="ml-2">
                                                 <MoreHorizontal className="h-4 w-4" />
                                                 <span className="sr-only">Toggle menu</span>
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Changer Statut</DropdownMenuLabel>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'pending')}>En attente</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'shipped')}>Expédiée</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'delivered')}>Livrée</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'pending')}>Paiement en attente</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'shipped')}>Marquer comme Expédiée</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'delivered')}>Marquer comme Livrée</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
@@ -254,13 +290,13 @@ export default function SellerDashboard() {
 
   const refreshSellerData = useCallback(() => {
     if (user && user.role === 'seller') {
-        const currentSeller = getSellerById(user.uid);
+        const currentSeller = getSellerById(user.id);
         if (currentSeller) {
           setSeller(currentSeller);
           const sellerProducts = currentSeller.products || [];
           setProducts(sellerProducts);
 
-          const sellerOrders = getOrdersForSeller(user.uid);
+          const sellerOrders = getOrdersForSeller(user.id);
           setOrders(sellerOrders);
 
           const totalSales = sellerOrders.reduce((acc, order) => acc + (order.price * order.quantity), 0);
@@ -322,7 +358,7 @@ export default function SellerDashboard() {
                 <TabsTrigger value="products">Produits ({products.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="orders" className="mt-4">
-               {user && <OrdersTab orders={orders} sellerId={user.uid} />}
+               {user && <OrdersTab orders={orders} sellerId={user.id} refreshSellerData={refreshSellerData} />}
             </TabsContent>
             <TabsContent value="products" className="mt-4">
               {user && <ProductsTab products={products} user={user} refreshSellerData={refreshSellerData} />}

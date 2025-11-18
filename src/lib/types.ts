@@ -14,11 +14,13 @@ export type Product = {
 };
 
 export interface User {
-  uid: string;
+  id: string; // Using 'id' to be consistent across models
+  uid: string; // Keep uid for original reference if needed, but prefer 'id'
   email: string;
   displayName?: string;
   photoURL?: string;
   role: 'seller' | 'buyer' | 'admin';
+  password?: string; // For localStorage auth, DON'T do this in prod
 }
 
 export interface AdminProfile {
@@ -69,6 +71,7 @@ export type Order = {
   price: number;
   quantity: number;
   sellerId: string;
+  sellerPhone: string; // Added for USSD payment
   buyerId: string;
   buyerInfo: {
     firstName: string;
@@ -78,7 +81,8 @@ export type Order = {
     address: string;
   };
   orderDate: string;
-  status: 'pending' | 'shipped' | 'delivered';
+  status: 'pending' | 'awaiting_confirmation' | 'shipped' | 'delivered';
+  paymentProof?: string; // Data URL of the screenshot
 }
 
 
@@ -94,7 +98,7 @@ export type Notification = {
     id: string;
     userId?: string; // ID of the seller
     userType: 'admin' | 'seller' | 'buyer'; // Target user type
-    type: 'new_order' | 'new_seller_application' | 'new_product';
+    type: 'new_order' | 'new_seller_application' | 'payment_proof_submitted';
     message: string;
     link: string;
     timestamp: string;
