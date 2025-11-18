@@ -1,3 +1,4 @@
+
 export type Product = {
   id: string;
   name: string;
@@ -16,7 +17,16 @@ export interface User {
   lastName: string;
   email: string;
   password?: string; // Insecure, for demo only
-  type: 'seller' | 'buyer';
+  type: 'seller' | 'buyer' | 'admin';
+}
+
+export interface AdminProfile {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    whatsapp?: string;
+    bio?: string;
 }
 
 export interface Seller extends User {

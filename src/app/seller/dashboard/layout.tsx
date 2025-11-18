@@ -1,3 +1,4 @@
+
 "use client"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -8,6 +9,7 @@ import {
   Package,
   Settings,
   ShoppingBag,
+  UserCircle,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -41,6 +43,7 @@ export default function SellerLayout({
   const navItems = [
       { href: "/seller/dashboard", icon: Home, label: "Tableau de bord", badge: newOrdersCount > 0 ? newOrdersCount : undefined },
       { href: "/seller/dashboard/profile", icon: Settings, label: "Mon profil" },
+      { href: "/admin/profile", icon: UserCircle, label: "Voir l'admin" },
   ]
 
 
