@@ -10,8 +10,9 @@ import { FirebaseProvider } from './provider';
 export function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
     // Firebase app must be initialized before we can get auth and firestore
     if (!firebaseApp) {
-        // You can return a loading state here if you want
-        return <>{children}</>;
+        // Render nothing or a loading spinner until Firebase is ready.
+        // This prevents children from trying to use a null Firebase instance.
+        return null; 
     }
 
     const auth = getAuth(firebaseApp);
