@@ -57,7 +57,7 @@ export const useAuthLogic = () => {
       };
 
       await setDoc(userDocRef, newUser);
-      setUser(newUser);
+      // Let onAuthStateChanged handle setting the user state.
       return userCredential;
     },
     [auth, firestore]
@@ -80,8 +80,7 @@ export const useAuthLogic = () => {
         role: 'admin',
         displayName: 'Admin'
       };
-      // In a real app, you wouldn't set a user like this.
-      // This is a workaround for the prototype.
+      // For mock admin, we set the user state directly.
       setUser(adminUser);
       return adminUser;
     }
@@ -89,14 +88,13 @@ export const useAuthLogic = () => {
   }, []);
 
   const signOut = useCallback(async () => {
-    if (!auth) throw new Error("Firebase Auth not initialized");
     // If it's our mock admin, just clear state.
     if (user?.role === 'admin') {
         setUser(null);
-    } else {
+    } else if (auth) {
         await firebaseSignOut(auth);
     }
-  }, [auth, user]);
+  }, [auth, user?.role]);
 
   return { user, signUp, signIn, adminLogin, signOut };
 };

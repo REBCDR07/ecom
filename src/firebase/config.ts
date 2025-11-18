@@ -11,20 +11,13 @@ const firebaseConfig: FirebaseOptions = {
   appId: "YOUR_APP_ID",
 };
 
-// Initialize Firebase safely
-function initializeAppIfNotExists(): FirebaseApp {
-    if (typeof window === 'undefined') {
-        // On the server, we don't initialize. 
-        // We might need a different setup for server-side Firebase actions in the future.
-        // For now, client-side only is fine.
-        return null as any; 
-    }
+// Initialize Firebase safely for both client and server environments
+let firebaseApp: FirebaseApp;
 
-    const apps = getApps();
-    if (apps.length > 0) {
-        return getApp(); // Return the existing app
-    }
-    return initializeApp(firebaseConfig); // Initialize a new app
+if (getApps().length === 0) {
+  firebaseApp = initializeApp(firebaseConfig);
+} else {
+  firebaseApp = getApp();
 }
 
-export const firebaseApp = initializeAppIfNotExists();
+export { firebaseApp };
