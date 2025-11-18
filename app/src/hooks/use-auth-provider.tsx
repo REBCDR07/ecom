@@ -8,7 +8,7 @@ import { useSellers } from './use-sellers';
 const AUTH_USER_KEY = 'marketconnect_user';
 
 interface AuthContextType {
-  user: AppUser | null | undefined;
+  user: AppUser | null;
   signUp: (email: string, password?: string, additionalData?: Partial<AppUser>) => Promise<AppUser>;
   signIn: (email: string, password?: string) => Promise<AppUser>;
   adminLogin: (password: string) => Promise<AppUser>;
@@ -19,10 +19,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AppUser | null | undefined>(undefined);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     try {
       const storedUser = localStorage.getItem(AUTH_USER_KEY);
       if (storedUser) {
@@ -82,8 +83,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (foundUser && foundUser.password === password) {
             const { password, ...userToAuth } = foundUser;
-            updateUserInStorage(userToAuth);
-            return userToAuth;
+            updateUserInStorage(userToAuth as AppUser);
+            return userToAuth as AppUser;
         }
         
         throw new Error("Email ou mot de passe incorrect.");
