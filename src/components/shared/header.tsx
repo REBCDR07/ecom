@@ -1,3 +1,4 @@
+
 "use client";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -15,9 +16,8 @@ import { useRouter } from 'next/navigation';
 
 const navLinks = [
   { href: '/', label: 'Accueil' },
+  { href: '/products', label: 'Produits' },
   { href: '/sellers', label: 'Vendeurs' },
-  { href: '#', label: 'FAQ' },
-  { href: '#', label: 'Contact' },
 ];
 
 const notifications = [
