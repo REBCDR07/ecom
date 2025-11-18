@@ -1,3 +1,4 @@
+
 "use client";
 import Image from 'next/image';
 import Link from 'next/link';
@@ -57,10 +58,10 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-       <section className="relative h-[70vh] w-full text-white">
+       <section className="relative h-[70vh] w-full flex flex-col items-center justify-center text-white text-center">
         <Carousel
           opts={{ loop: true }}
-          className="w-full h-full"
+          className="absolute inset-0 w-full h-full -z-10"
         >
           <CarouselContent className="h-full">
             {heroImages.map((image, index) => (
@@ -78,14 +79,14 @@ export default function Home() {
           </CarouselContent>
         </Carousel>
         <div className="absolute inset-0 bg-black/60" />
-        <div className="relative z-10 flex h-full flex-col items-center justify-center text-center p-4">
+        <div className="relative z-10 p-4">
           <h1 className="text-primary">
             MarketConnect
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-200">
             La première place de marché qui révèle le talent des artisans et vendeurs du Bénin. Découvrez, achetez et soutenez l'économie locale.
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
               <Link href="/register">Devenir Vendeur</Link>
             </Button>
