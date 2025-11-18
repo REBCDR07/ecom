@@ -32,6 +32,7 @@ export interface AdminProfile {
 export interface Seller extends User {
   companyName: string;
   profilePicture: string;
+  bannerPicture: string;
   imageHint: string;
   phone: string;
   whatsapp: string;
@@ -40,7 +41,7 @@ export interface Seller extends User {
   products?: Product[];
 }
 
-export interface SellerApplication extends Omit<Seller, 'profilePicture' | 'imageHint' | 'products'> {
+export interface SellerApplication extends Omit<Seller, 'imageHint' | 'products' | 'type'> {
   activity: string;
   whyPlatform: string;
   submissionDate: string;

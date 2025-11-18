@@ -17,7 +17,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
 function ContactDialog({seller}: {seller: Seller}) {
@@ -82,7 +81,7 @@ export default function SellerProfilePage() {
 
     const whatsappLink = `https://wa.me/${seller.whatsapp}?text=${encodeURIComponent(`Bonjour, je suis intéressé(e) par vos produits sur MarketConnect.`)}`;
     
-    const bannerImage = PlaceHolderImages.find(img => img.id === 'seller-banner-1') || { imageUrl: `https://picsum.photos/seed/${seller.id}-banner/1600/400`, imageHint: 'artisan workshop' };
+    const bannerImage = seller.bannerPicture || `https://picsum.photos/seed/${seller.id}-banner/1600/400`;
 
     return (
         <div>
@@ -100,9 +99,9 @@ export default function SellerProfilePage() {
             {/* Banner Section */}
             <section className="relative h-64 md:h-80 w-full">
                 <Image
-                    src={bannerImage.imageUrl}
+                    src={bannerImage}
                     alt={`Bannière de ${seller.companyName}`}
-                    data-ai-hint={bannerImage.imageHint}
+                    data-ai-hint={'artisan workshop'}
                     fill
                     className="object-cover"
                 />

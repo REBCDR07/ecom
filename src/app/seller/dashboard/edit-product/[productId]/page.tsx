@@ -13,6 +13,15 @@ import { Seller, Product } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
 
+// Helper function to read file as Data URL
+const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+});
+
+
 export default function EditProductPage() {
   const router = useRouter()
   const params = useParams();
@@ -21,6 +30,7 @@ export default function EditProductPage() {
   const { updateProduct } = useSellers()
   const { user } = useAuthContext()
   const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [product, setProduct] = useState<Product | null>(null);
 
@@ -40,19 +50,38 @@ export default function EditProductPage() {
   }, [user, productId]);
 
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!user || !product) return;
+    if (!user || !product || isSubmitting) return;
 
+    setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const promotionalPrice = formData.get('promotionalPrice');
+    const imageFile = formData.get('image') as File;
+
+    let imageUrl = product.image;
+    if (imageFile && imageFile.size > 0) {
+        try {
+            imageUrl = await toBase64(imageFile);
+        } catch (error) {
+            console.error("Error converting file to Base64", error);
+            toast({
+                variant: "destructive",
+                title: "Erreur d'image",
+                description: "Impossible de traiter le nouveau fichier image.",
+            });
+            setIsSubmitting(false);
+            return;
+        }
+    }
+
     const updatedProductData: Product = {
       ...product,
       name: formData.get('product-name') as string,
       price: Number(formData.get('price')),
       promotionalPrice: promotionalPrice && Number(promotionalPrice) > 0 ? Number(promotionalPrice) : undefined,
       description: formData.get('description') as string,
-      image: product.image, // Image upload not implemented in this version
+      image: imageUrl, // Use new image if provided
       imageHint: product.imageHint,
     };
     
@@ -119,13 +148,14 @@ export default function EditProductPage() {
 
             <div className="space-y-2">
               <Label htmlFor="image">Changer l'image du produit</Label>
-              <Input id="image" type="file" disabled/>
-              <p className="text-xs text-muted-foreground">Le changement d'image n'est pas disponible dans cette version.</p>
+              <Input id="image" name="image" type="file" accept="image/*" />
             </div>
 
             <div className="flex justify-end gap-2">
-                <Button variant="outline" type="button" onClick={() => router.back()}>Annuler</Button>
-                <Button type="submit">Sauvegarder les modifications</Button>
+                <Button variant="outline" type="button" onClick={() => router.back()} disabled={isSubmitting}>Annuler</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Sauvegarde..." : "Sauvegarder les modifications"}
+                </Button>
             </div>
 
           </form>

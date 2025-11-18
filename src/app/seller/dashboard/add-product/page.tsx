@@ -8,29 +8,59 @@ import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import { useSellers } from "@/hooks/use-sellers"
 import { useAuthContext } from "@/hooks/use-auth-provider"
-import { FormEvent } from "react"
+import { FormEvent, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Product } from "@/lib/types";
+
+// Helper function to read file as Data URL
+const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+});
+
 
 export default function AddProductPage() {
   const router = useRouter()
   const { addProduct } = useSellers()
   const { user } = useAuthContext()
   const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || isSubmitting) return;
 
+    setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const promotionalPrice = formData.get('promotionalPrice');
+    const imageFile = formData.get('image') as File;
+
+    let imageUrl = `https://picsum.photos/seed/${Math.random()}/400/400`;
+
+    if (imageFile && imageFile.size > 0) {
+        try {
+            imageUrl = await toBase64(imageFile);
+        } catch (error) {
+            console.error("Error converting file to Base64", error);
+            toast({
+                variant: "destructive",
+                title: "Erreur d'image",
+                description: "Impossible de traiter le fichier image.",
+            });
+            setIsSubmitting(false);
+            return;
+        }
+    }
+
 
     const newProductData: Omit<Product, 'id' | 'sellerId' | 'sellerName'> = {
       name: formData.get('product-name') as string,
       price: Number(formData.get('price')),
       promotionalPrice: promotionalPrice ? Number(promotionalPrice) : undefined,
       description: formData.get('description') as string,
-      image: `https://picsum.photos/seed/${Math.random()}/400/400`,
+      image: imageUrl,
       imageHint: 'new product',
     };
     
@@ -43,7 +73,11 @@ export default function AddProductPage() {
   };
   
   if (!user || user.type !== 'seller') {
-    return <p>Accès non autorisé.</p>
+    // This part should be handled by the layout, but as a fallback:
+    if (typeof window !== 'undefined') {
+        router.replace('/login');
+    }
+    return <p>Accès non autorisé. Redirection...</p>
   }
 
   return (
@@ -80,12 +114,14 @@ export default function AddProductPage() {
             
             <div className="space-y-2">
               <Label htmlFor="image">Image du produit</Label>
-              <Input id="image" name="image" type="file" required />
+              <Input id="image" name="image" type="file" accept="image/*" required />
             </div>
 
             <div className="flex justify-end gap-2">
-                <Button variant="outline" type="button" onClick={() => router.back()}>Annuler</Button>
-                <Button type="submit">Ajouter le produit</Button>
+                <Button variant="outline" type="button" onClick={() => router.back()} disabled={isSubmitting}>Annuler</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Ajout en cours..." : "Ajouter le produit"}
+                </Button>
             </div>
 
           </form>

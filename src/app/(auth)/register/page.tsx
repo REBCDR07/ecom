@@ -1,3 +1,4 @@
+
 "use client";
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useSellers } from '@/hooks/use-sellers';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { User } from '@/lib/types';
+import { User, SellerApplication } from '@/lib/types';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -46,6 +47,8 @@ const sellerSchema = z.object({
   whyPlatform: z.string().min(10, "Ce champ est requis"),
   password: z.string().min(12, "Le mot de passe doit contenir au moins 12 caractères"),
   confirmPassword: z.string(),
+  profilePicture: z.instanceof(File).optional(),
+  bannerPicture: z.instanceof(File).optional(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Les mots de passe ne correspondent pas",
   path: ["confirmPassword"],
@@ -147,6 +150,15 @@ function BuyerRegisterForm() {
   );
 }
 
+// Helper function to read file as Data URL
+const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+});
+
+
 function SellerRegisterForm() {
     const form = useForm<SellerFormValues>({
       resolver: zodResolver(sellerSchema),
@@ -167,12 +179,45 @@ function SellerRegisterForm() {
     const { addPendingSeller } = useSellers();
     const { toast } = useToast();
     const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
-    const onSubmit: SubmitHandler<SellerFormValues> = (data) => {
-        addPendingSeller(data);
+    const onSubmit: SubmitHandler<SellerFormValues> = async (data) => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
+        const profilePicFile = form.getValues('profilePicture');
+        const bannerPicFile = form.getValues('bannerPicture');
+
+        let profilePictureUrl = '';
+        let bannerPictureUrl = '';
+
+        try {
+            if (profilePicFile) {
+                profilePictureUrl = await toBase64(profilePicFile);
+            }
+             if (bannerPicFile) {
+                bannerPictureUrl = await toBase64(bannerPicFile);
+            }
+        } catch (error) {
+             toast({
+                variant: "destructive",
+                title: "Erreur d'image",
+                description: "Impossible de traiter un des fichiers image.",
+            });
+            setIsSubmitting(false);
+            return;
+        }
+
+        const sellerApplicationData: Omit<SellerApplication, 'id' | 'submissionDate' | 'status' | 'type'> & { profilePicture: string, bannerPicture: string } = {
+          ...data,
+          profilePicture: profilePictureUrl,
+          bannerPicture: bannerPictureUrl
+        };
+        
+        addPendingSeller(sellerApplicationData);
         toast({
             title: "Demande soumise !",
             description: "Votre demande d'inscription a été envoyée. Elle sera examinée par un administrateur.",
@@ -239,17 +284,27 @@ function SellerRegisterForm() {
             <FormMessage /></FormItem>
         )} />
         <div className="grid grid-cols-2 gap-4">
-             <div className="space-y-2">
-                <Label htmlFor="profile-pic">Photo de profil</Label>
-                <Input id="profile-pic" type="file" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="banner-pic">Bannière de couverture</Label>
-                <Input id="banner-pic" type="file" />
-            </div>
+             <FormField control={form.control} name="profilePicture" render={({ field: { onChange, ...props } }) => (
+                <FormItem>
+                    <FormLabel>Photo de profil</FormLabel>
+                    <FormControl>
+                        <Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files?.[0])} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )} />
+             <FormField control={form.control} name="bannerPicture" render={({ field: { onChange, ...props } }) => (
+                <FormItem>
+                    <FormLabel>Bannière de couverture</FormLabel>
+                    <FormControl>
+                        <Input type="file" accept="image/*" onChange={(e) => onChange(e.target.files?.[0])} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            )} />
         </div>
-        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-            Soumettre la demande
+        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isSubmitting}>
+            {isSubmitting ? "Envoi en cours..." : "Soumettre la demande"}
         </Button>
     </form>
     </Form>

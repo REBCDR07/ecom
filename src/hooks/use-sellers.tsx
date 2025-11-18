@@ -1,9 +1,8 @@
+
 "use client";
 
 import { Seller, SellerApplication, Product } from '@/lib/types';
 import { useCallback } from 'react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-
 
 const PENDING_SELLERS_KEY = 'pending_sellers';
 const APPROVED_SELLERS_KEY = 'approved_sellers';
@@ -35,14 +34,13 @@ export const useSellers = () => {
         return getFromStorage(PENDING_SELLERS_KEY);
     }, [getFromStorage]);
 
-    const addPendingSeller = useCallback((sellerData: Omit<SellerApplication, 'id' | 'submissionDate' | 'status' | 'type'>) => {
+    const addPendingSeller = useCallback((sellerData: Omit<SellerApplication, 'id' | 'submissionDate' | 'status'>) => {
         const pendingSellers = getPendingSellers();
         const newSellerApplication: SellerApplication = {
             ...sellerData,
             id: `seller_${crypto.randomUUID()}`,
             submissionDate: new Date().toISOString(),
             status: 'pending',
-            type: 'seller'
         };
         saveToStorage(PENDING_SELLERS_KEY, [...pendingSellers, newSellerApplication]);
     }, [getPendingSellers, saveToStorage]);
@@ -55,13 +53,16 @@ export const useSellers = () => {
 
         if (sellerToApprove) {
             const remainingPending = pendingSellers.filter(s => s.id !== sellerId);
-            const sellerImage = PlaceHolderImages.find(img => img.id === 'seller-1') || { imageUrl: `https://picsum.photos/seed/${sellerToApprove.id}/100/100`, imageHint: 'portrait' };
             
+            const defaultProfilePic = `https://picsum.photos/seed/${sellerToApprove.id}/100/100`;
+            const defaultBannerPic = `https://picsum.photos/seed/${sellerToApprove.id}-banner/1600/400`;
+
             const newApprovedSeller: Seller = {
                 id: sellerToApprove.id,
                 companyName: sellerToApprove.companyName,
-                profilePicture: sellerImage.imageUrl,
-                imageHint: sellerImage.imageHint,
+                profilePicture: sellerToApprove.profilePicture || defaultProfilePic,
+                bannerPicture: sellerToApprove.bannerPicture || defaultBannerPic,
+                imageHint: 'portrait',
                 firstName: sellerToApprove.firstName,
                 lastName: sellerToApprove.lastName,
                 email: sellerToApprove.email,
