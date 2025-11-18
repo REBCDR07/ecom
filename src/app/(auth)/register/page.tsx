@@ -78,8 +78,7 @@ function BuyerRegisterForm() {
     setIsSubmitting(true);
     try {
       const userCredential = await signUp(data.email, data.password, {
-        firstName: data.firstName,
-        lastName: data.lastName,
+        displayName: `${data.firstName} ${data.lastName}`,
         role: 'buyer'
       });
       
@@ -213,7 +212,9 @@ function SellerRegisterForm() {
 
             const { confirmPassword, ...applicationData } = data;
             
-            const newAppRef = doc(firestore, 'seller_applications', `app_${crypto.randomUUID()}`);
+            const appId = `app_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+            const newAppRef = doc(firestore, 'seller_applications', appId);
+
             await setDoc(newAppRef, {
                 ...applicationData,
                 profilePicture: profilePictureUrl,
@@ -358,5 +359,3 @@ export default function RegisterPage() {
     </Card>
   );
 }
-
-    

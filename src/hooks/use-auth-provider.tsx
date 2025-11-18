@@ -1,19 +1,24 @@
 
 "use client";
-import React, { createContext, useContext, ReactNode, useMemo } from 'react';
-import { useAuthLogic } from './use-auth'; // The actual hook logic
+import React, { createContext, useContext, ReactNode } from 'react';
+import { useAuthLogic } from './use-auth';
 
 // Define the shape of the context data
-type AuthContextType = ReturnType<typeof useAuthLogic> | { user: undefined | null };
+// We add "user: undefined" to represent the loading state
+type AuthContextType = ReturnType<typeof useAuthLogic> | { user: undefined };
 
-// Create the context
+// Create the context with undefined user as default (loading)
 const AuthContext = createContext<AuthContextType>({ user: undefined });
 
 // Create the provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const authHook = useAuthLogic();
-  const contextValue = useMemo(() => authHook, [authHook.user, authHook]);
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+  
+  return (
+    <AuthContext.Provider value={authHook}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 // Create a hook to use the auth context

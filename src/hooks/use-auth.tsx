@@ -19,7 +19,10 @@ export const useAuthLogic = () => {
   const [user, setUser] = useState<AppUser | null | undefined>(undefined);
 
   useEffect(() => {
-    if (!auth || !firestore) return;
+    if (!auth || !firestore) {
+      setUser(null); // Firebase not ready, assume not logged in.
+      return;
+    };
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
@@ -80,8 +83,7 @@ export const useAuthLogic = () => {
         role: 'admin',
         displayName: 'Admin'
       };
-      // In a real app, you wouldn't set a user like this.
-      // This is a workaround for the prototype.
+      // For a mock admin, we just set the state locally.
       setUser(adminUser);
       return adminUser;
     }
@@ -90,7 +92,8 @@ export const useAuthLogic = () => {
 
   const signOut = useCallback(async () => {
     if (!auth) throw new Error("Firebase Auth not initialized");
-    // If it's our mock admin, just clear state.
+    
+    // If it's our mock admin, we don't need to call Firebase, just clear state.
     if (user?.role === 'admin') {
         setUser(null);
     } else {

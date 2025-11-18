@@ -4,16 +4,20 @@ import React, { createContext, useContext, ReactNode, useMemo } from 'react';
 import { useAuthLogic } from './use-auth'; // The actual hook logic
 
 // Define the shape of the context data
-type AuthContextType = ReturnType<typeof useAuthLogic> | { user: undefined | null };
+type AuthContextType = ReturnType<typeof useAuthLogic>;
 
 // Create the context
-const AuthContext = createContext<AuthContextType>({ user: undefined });
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Create the provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const authHook = useAuthLogic();
-  const contextValue = useMemo(() => authHook, [authHook.user, authHook]);
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+
+  return (
+    <AuthContext.Provider value={authHook}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 // Create a hook to use the auth context
@@ -22,7 +26,5 @@ export const useAuthContext = () => {
   if (context === undefined) {
     throw new Error('useAuthContext must be used within an AuthProvider');
   }
-  // The user can be undefined while loading, so we have to cast here
-  // after ensuring our components can handle the undefined state.
-  return context as ReturnType<typeof useAuthLogic>;
+  return context;
 };
