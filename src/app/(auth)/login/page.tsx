@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthContext } from '@/hooks/use-auth-provider';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
@@ -33,24 +33,12 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      const userCredential = await signIn(email, password);
-      if (userCredential?.user) {
-        toast({
-          title: 'Connexion réussie',
-          description: `Bienvenue !`,
-        });
-        
-        // We need to get the user's role from firestore,
-        // which happens in the useAuth hook. The user object
-        // might not be updated immediately. We can listen to user changes
-        // or redirect based on the route they were trying to access.
-        // For now, a simple timeout will allow the user object to update.
-        setTimeout(() => {
-          // This logic will be improved once the user object contains the role
-          router.push('/');
-        }, 500);
-
-      }
+      await signIn(email, password);
+      toast({
+        title: 'Connexion réussie',
+        description: `Bienvenue !`,
+      });
+      // The redirect will be handled by the useEffect below
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -61,12 +49,19 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-
-  // Redirect if user is already logged in and role is determined
-  if (user) {
-    if (user.role === 'seller') router.replace('/seller/dashboard');
-    else if (user.role === 'admin') router.replace('/admin/dashboard');
-    else if (user.role === 'buyer') router.replace('/');
+  
+  // This effect will run when the `user` object changes
+  useEffect(() => {
+    if (user) {
+        if (user.role === 'seller') router.replace('/seller/dashboard');
+        else if (user.role === 'admin') router.replace('/admin/dashboard');
+        else if (user.role === 'buyer') router.replace('/');
+    }
+  }, [user, router]);
+  
+  // Show a loading or blank state while user is `undefined`
+  if (user === undefined) {
+    return <div className="flex items-center justify-center h-full"><p>Chargement...</p></div>;
   }
 
   return (
@@ -128,5 +123,3 @@ export default function LoginPage() {
     </Card>
   );
 }
-
-    

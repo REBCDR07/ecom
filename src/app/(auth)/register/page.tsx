@@ -24,6 +24,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useAuthContext } from '@/hooks/use-auth-provider';
 import { doc, setDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase/provider';
+import { useSellers } from '@/hooks/use-sellers';
 
 const buyerSchema = z.object({
   firstName: z.string().min(1, "Le prénom est requis"),
@@ -172,7 +173,7 @@ const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) 
 
 
 function SellerRegisterForm() {
-    const firestore = useFirestore();
+    const { addPendingSeller } = useSellers();
     const form = useForm<SellerFormValues>({
       resolver: zodResolver(sellerSchema),
       defaultValues: {
@@ -197,30 +198,25 @@ function SellerRegisterForm() {
 
 
     const onSubmit: SubmitHandler<SellerFormValues> = async (data) => {
-        if (isSubmitting || !firestore) return;
+        if (isSubmitting) return;
         setIsSubmitting(true);
 
-        const profilePicFile = form.getValues('profilePicture');
-        const bannerPicFile = form.getValues('bannerPicture');
-
-        let profilePictureUrl = '';
-        let bannerPictureUrl = '';
-
         try {
-            if (profilePicFile) profilePictureUrl = await toBase64(profilePicFile);
-            if (bannerPicFile) bannerPictureUrl = await toBase64(bannerPicFile);
+            // We're no longer creating the user directly here.
+            // We're sending an application that the admin will approve.
+            const { password, confirmPassword, profilePicture, bannerPicture, ...applicationData } = data;
 
-            const { confirmPassword, ...applicationData } = data;
-            
-            const appId = `app_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-            const newAppRef = doc(firestore, 'seller_applications', appId);
+            let profilePictureUrl = '';
+            let bannerPictureUrl = '';
 
-            await setDoc(newAppRef, {
+            if (data.profilePicture) profilePictureUrl = await toBase64(data.profilePicture);
+            if (data.bannerPicture) bannerPictureUrl = await toBase64(data.bannerPicture);
+
+            addPendingSeller({
                 ...applicationData,
+                password, // Pass the password along for admin to create user
                 profilePicture: profilePictureUrl,
                 bannerPicture: bannerPictureUrl,
-                submissionDate: new Date().toISOString(),
-                status: 'pending',
             });
             
             toast({
