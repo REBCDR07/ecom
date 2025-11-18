@@ -16,13 +16,15 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Check, X, User, ShoppingBag, DollarSign, Users } from "lucide-react";
+import { Check, X, User, ShoppingBag, DollarSign, Users, LogOut } from "lucide-react";
 import { useSellers } from "@/hooks/use-sellers";
 import { useToast } from "@/hooks/use-toast";
 import { SellerApplication, Seller, User as AppUser, Order } from "@/lib/types";
 import { useEffect, useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManageAdminProfilePage from "./manage-profile/page";
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/hooks/use-auth-provider";
 
 function MainDashboard({
   pendingSellers,
@@ -127,6 +129,8 @@ export default function AdminDashboard() {
   const { getPendingSellers, approveSeller, rejectSeller } = useSellers();
   const [pendingSellers, setPendingSellers] = useState<SellerApplication[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
+  const { logout } = useAuthContext();
   const [stats, setStats] = useState({ totalSales: 0, totalProducts: 0, totalClients: 0 });
 
   const refreshData = useCallback(() => {
@@ -172,10 +176,25 @@ export default function AdminDashboard() {
     });
   }
 
+  const handleLogout = () => {
+    logout();
+    toast({
+        title: 'Déconnexion',
+        description: 'Vous avez été déconnecté.',
+    });
+    router.push('/admin/login');
+  };
+
 
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
-        <h2 className="text-3xl font-bold tracking-tight">Tableau de bord Administrateur</h2>
+        <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold tracking-tight">Tableau de bord Administrateur</h2>
+            <Button variant="ghost" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Déconnexion
+            </Button>
+        </div>
         <Tabs defaultValue="dashboard">
           <TabsList>
             <TabsTrigger value="dashboard">Tableau de bord principal</TabsTrigger>

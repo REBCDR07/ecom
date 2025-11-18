@@ -20,6 +20,8 @@ import { useSellers } from '@/hooks/use-sellers';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/types';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const buyerSchema = z.object({
   firstName: z.string().min(1, "Le prénom est requis"),
@@ -61,6 +63,8 @@ function BuyerRegisterForm() {
 
   const { toast } = useToast();
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const onSubmit: SubmitHandler<BuyerFormValues> = (data) => {
     const buyers: User[] = JSON.parse(localStorage.getItem('buyers') || '[]');
@@ -110,14 +114,28 @@ function BuyerRegisterForm() {
         <FormField control={form.control} name="password" render={({ field }) => (
           <FormItem>
             <FormLabel>Mot de passe (8+ caractères)</FormLabel>
-            <FormControl><Input type="password" {...field} /></FormControl>
+            <FormControl>
+              <div className="relative">
+                <Input type={showPassword ? 'text' : 'password'} {...field} />
+                 <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <EyeOff className="h-5 w-5 text-muted-foreground" /> : <Eye className="h-5 w-5 text-muted-foreground" />}
+                </button>
+              </div>
+            </FormControl>
             <FormMessage />
           </FormItem>
         )} />
         <FormField control={form.control} name="confirmPassword" render={({ field }) => (
           <FormItem>
             <FormLabel>Confirmer le mot de passe</FormLabel>
-            <FormControl><Input type="password" {...field} /></FormControl>
+             <FormControl>
+              <div className="relative">
+                <Input type={showConfirmPassword ? 'text' : 'password'} {...field} />
+                 <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5 text-muted-foreground" /> : <Eye className="h-5 w-5 text-muted-foreground" />}
+                </button>
+              </div>
+            </FormControl>
             <FormMessage />
           </FormItem>
         )} />
@@ -149,6 +167,8 @@ function SellerRegisterForm() {
     const { addPendingSeller } = useSellers();
     const { toast } = useToast();
     const router = useRouter();
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
     const onSubmit: SubmitHandler<SellerFormValues> = (data) => {
@@ -195,10 +215,28 @@ function SellerRegisterForm() {
             <FormItem><FormLabel>Pourquoi choisir notre plateforme ?</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
         )} />
          <FormField control={form.control} name="password" render={({ field }) => (
-            <FormItem><FormLabel>Mot de passe (12+ caractères)</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Mot de passe (12+ caractères)</FormLabel>
+                <FormControl>
+                    <div className="relative">
+                        <Input type={showPassword ? 'text' : 'password'} {...field} />
+                        <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <EyeOff className="h-5 w-5 text-muted-foreground" /> : <Eye className="h-5 w-5 text-muted-foreground" />}
+                        </button>
+                    </div>
+                </FormControl>
+            <FormMessage /></FormItem>
         )} />
         <FormField control={form.control} name="confirmPassword" render={({ field }) => (
-            <FormItem><FormLabel>Confirmer le mot de passe</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Confirmer le mot de passe</FormLabel>
+                <FormControl>
+                    <div className="relative">
+                        <Input type={showConfirmPassword ? 'text' : 'password'} {...field} />
+                        <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                        {showConfirmPassword ? <EyeOff className="h-5 w-5 text-muted-foreground" /> : <Eye className="h-5 w-5 text-muted-foreground" />}
+                        </button>
+                    </div>
+                </FormControl>
+            <FormMessage /></FormItem>
         )} />
         <div className="grid grid-cols-2 gap-4">
              <div className="space-y-2">

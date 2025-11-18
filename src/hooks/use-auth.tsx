@@ -24,9 +24,22 @@ export const useAuth = () => {
     }
   }, []);
 
-  const login = useCallback((email: string, password?: string): User | null => {
+  const login = useCallback((email: string, password?: string, isAdmin = false): User | null => {
     try {
       if (typeof window === 'undefined') return null;
+
+      if (isAdmin) {
+          const adminUser: User = {
+              id: 'admin_user',
+              firstName: 'Admin',
+              lastName: 'User',
+              email: 'admin@marketconnect.com',
+              type: 'admin',
+          };
+          localStorage.setItem(AUTH_KEY, JSON.stringify(adminUser));
+          setUser(adminUser);
+          return adminUser;
+      }
 
       const approvedSellers: User[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
       const buyers: User[] = JSON.parse(localStorage.getItem('buyers') || '[]');

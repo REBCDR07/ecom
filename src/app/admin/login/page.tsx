@@ -12,15 +12,18 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Lock } from 'lucide-react';
+import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthContext } from '@/hooks/use-auth-provider';
 
 const ADMIN_PASSWORD_KEY = 'admin_password';
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { login } = useAuthContext();
 
   useEffect(() => {
     // Set the admin password in localStorage if it's not already there.
@@ -34,8 +37,8 @@ export default function AdminLoginPage() {
     const storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
     
     if (password === storedPassword) {
-      // For this prototype, we'll just redirect.
-      // In a real app, you'd set a secure session token.
+      // Use the login function to set an admin user type
+      login('admin', password, true);
       router.push('/admin/dashboard');
     } else {
       toast({
@@ -62,13 +65,26 @@ export default function AdminLoginPage() {
             <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="password">Mot de passe</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input 
+                    id="password" 
+                    type={showPassword ? 'text' : 'password'}
+                    required 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                   <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </button>
+                </div>
             </div>
             <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
                 Connexion

@@ -14,6 +14,7 @@ import { useAuthContext } from '@/hooks/use-auth-provider';
 import { FormEvent, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuthContext();
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
 
   const handleLogin = (e: FormEvent) => {
@@ -69,7 +71,26 @@ export default function LoginPage() {
                 Mot de passe oublié?
               </Link>
             </div>
-            <Input id="password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <Eye className="h-5 w-5 text-muted-foreground" />
+                )}
+              </button>
+            </div>
           </div>
           <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
             Se connecter

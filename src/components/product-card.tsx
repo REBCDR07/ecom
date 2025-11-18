@@ -81,12 +81,15 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleOrderClick = () => {
     if (user && user.type === 'buyer') {
       setOrderFormOpen(true);
-    } else if (user && user.type === 'seller') {
-      // Sellers can't order
+    } else if (user && (user.type === 'seller' || user.type === 'admin')) {
+      // Sellers and Admins can't order, so do nothing.
     } else {
       router.push('/login');
     }
   };
+  
+  const canOrder = !user || user.type === 'buyer';
+
 
   return (
     <Card className="w-full max-w-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
@@ -128,9 +131,11 @@ export function ProductCard({ product }: ProductCardProps) {
           </CardContent>
         </div>
         <div className="px-4 pb-4 mt-auto">
-            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={handleOrderClick}>
-              Commander
-            </Button>
+            {canOrder && (
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={handleOrderClick}>
+                Commander
+                </Button>
+            )}
         </div>
         
         {user && user.type === 'buyer' && (
