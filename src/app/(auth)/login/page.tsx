@@ -26,7 +26,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     if (!signIn) return;
@@ -34,7 +33,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signIn(email, password);
-      // La redirection sera gérée par le useEffect
+      // The redirection will be handled by the useEffect below
       toast({
         title: 'Connexion réussie',
         description: `Bienvenue !`,
@@ -50,24 +49,24 @@ export default function LoginPage() {
     }
   };
   
-  // Cet effet redirige l'utilisateur une fois qu'il est connecté avec succès.
+  // This effect redirects the user once they are successfully logged in.
   useEffect(() => {
-    // On agit seulement si `user` est défini (pas `undefined` ou `null`)
+    // Only act if `user` is not undefined (i.e., auth state has loaded)
     if (user) {
         if (user.role === 'seller') router.replace('/seller/dashboard');
         else if (user.role === 'admin') router.replace('/admin/dashboard');
         else if (user.role === 'buyer') router.replace('/');
     }
-    // La dépendance `user` garantit que l'effet s'exécute quand l'état d'auth change.
+    // The `user` dependency ensures this runs when the auth state changes.
   }, [user, router]);
   
-  // Affiche un état de chargement pendant l'initialisation de l'authentification.
+  // Displays a loading state while authentication is initializing.
   if (user === undefined) {
     return <div className="flex items-center justify-center h-full"><p>Chargement...</p></div>;
   }
 
-  // Si l'utilisateur est déjà connecté, il sera redirigé par le useEffect.
-  // On peut afficher un message pendant ce court instant.
+  // If the user is already logged in, they will be redirected by the useEffect.
+  // We can show a message during this brief moment.
   if (user) {
     return <div className="flex items-center justify-center h-full"><p>Vous êtes déjà connecté. Redirection...</p></div>;
   }

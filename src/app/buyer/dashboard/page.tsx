@@ -1,3 +1,4 @@
+
 "use client";
 import { useAuthContext } from "@/hooks/use-auth-provider";
 import { useOrders } from "@/hooks/use-orders";
@@ -21,7 +22,7 @@ export default function BuyerDashboardPage() {
     useEffect(() => {
         if (user === undefined) return; // Wait for auth state to load
 
-        if (!user || user.type !== 'buyer') {
+        if (!user || user.role !== 'buyer') {
             toast({
                 variant: 'destructive',
                 title: 'Accès non autorisé',
@@ -29,12 +30,12 @@ export default function BuyerDashboardPage() {
             });
             router.replace('/login');
         } else {
-            const buyerOrders = getOrdersForBuyer(user.id);
+            const buyerOrders = getOrdersForBuyer(user.uid);
             setOrders(buyerOrders);
         }
     }, [user, getOrdersForBuyer, router, toast]);
 
-    if (!user || user.type !== 'buyer') {
+    if (!user || user.role !== 'buyer') {
         return <div className="flex min-h-[calc(100vh-57px)] items-center justify-center"><p>Redirection...</p></div>;
     }
 
@@ -76,8 +77,8 @@ export default function BuyerDashboardPage() {
                                     <TableCell className="font-medium">{order.productName}</TableCell>
                                     <TableCell>
                                          <Link href={`/seller/${order.sellerId}`} className="hover:underline text-primary">
-                                            {/* Find seller name from product in order */}
-                                            {order.productName && orders.find(o => o.productId === order.productId)?.productName.split(" par ")[1] || "Vendeur"}
+                                            {/* This logic might be faulty if seller name isn't stored on product. Let's find it from the order itself if possible */}
+                                            {orders.find(o => o.productId === order.productId)?.productName.split(" par ")[1] || "Vendeur"}
                                         </Link>
                                     </TableCell>
                                     <TableCell>{new Date(order.orderDate).toLocaleDateString('fr-FR')}</TableCell>
