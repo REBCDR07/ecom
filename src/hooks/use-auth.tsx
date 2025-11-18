@@ -16,10 +16,15 @@ import type { User as AppUser } from '@/lib/types';
 export const useAuthLogic = () => {
   const auth = useFirebaseAuth();
   const firestore = useFirestore();
-  const [user, setUser] = useState<AppUser | null | undefined>(undefined);
+  const [user, setUser] = useState<AppUser | null | undefined>(undefined); // undefined means loading, null means not logged in
 
   useEffect(() => {
-    if (!auth || !firestore) return;
+    // This check is crucial. It ensures that the effect only runs when
+    // auth and firestore services are fully available from the context.
+    if (!auth || !firestore) {
+      setUser(undefined); // Explicitly set to loading if services are not ready
+      return;
+    }
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
@@ -30,16 +35,19 @@ export const useAuthLogic = () => {
           const userData = userDocSnap.data() as AppUser;
           setUser({ ...userData, uid: firebaseUser.uid });
         } else {
-          // This might happen if user record in Firestore is deleted but auth record remains.
+          // If the user exists in Auth but not Firestore, treat them as logged out.
+          // This can happen if the user record in Firestore is deleted but the Auth record remains.
           setUser(null); 
         }
       } else {
+        // No user is signed in.
         setUser(null);
       }
     });
 
+    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [auth, firestore]);
+  }, [auth, firestore]); // The dependency array ensures this effect re-runs if auth/firestore instances change.
 
   const signUp = useCallback(
     async (email: string, password?: string, additionalData: Partial<AppUser> = {}) => {
@@ -57,7 +65,7 @@ export const useAuthLogic = () => {
       };
 
       await setDoc(userDocRef, newUser);
-      // Let onAuthStateChanged handle setting the user state.
+      // onAuthStateChanged will handle setting the user state, so no need to call setUser here.
       return userCredential;
     },
     [auth, firestore]
@@ -66,13 +74,14 @@ export const useAuthLogic = () => {
   const signIn = useCallback(
     async (email: string, password?: string) => {
         if (!auth) throw new Error("Firebase Auth not initialized");
+        // onAuthStateChanged will handle setting the user state.
         return signInWithEmailAndPassword(auth, email, password!);
     },
     [auth]
   );
 
   const adminLogin = useCallback(async (password: string) => {
-    // This is a mock admin login. In a real app, this should be handled securely.
+    // This is a mock admin login for the prototype.
     if (password === 'BeninShell@2025') {
       const adminUser: AppUser = {
         uid: 'admin_user',
@@ -80,7 +89,7 @@ export const useAuthLogic = () => {
         role: 'admin',
         displayName: 'Admin'
       };
-      // For mock admin, we set the user state directly.
+      // For the mock admin, we set the user state directly.
       setUser(adminUser);
       return adminUser;
     }
@@ -88,13 +97,15 @@ export const useAuthLogic = () => {
   }, []);
 
   const signOut = useCallback(async () => {
-    // If it's our mock admin, just clear state.
-    if (user?.role === 'admin') {
-        setUser(null);
+    // Check if the current user is the mock admin
+    if (user?.uid === 'admin_user') {
+        setUser(null); // Just clear the state for the mock admin
     } else if (auth) {
+        // For regular Firebase users, sign them out.
+        // onAuthStateChanged will then set the user state to null.
         await firebaseSignOut(auth);
     }
-  }, [auth, user?.role]);
+  }, [auth, user]);
 
   return { user, signUp, signIn, adminLogin, signOut };
 };
