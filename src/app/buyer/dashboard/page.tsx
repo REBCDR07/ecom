@@ -3,7 +3,7 @@
 import { useAuthContext } from "@/hooks/use-auth-provider";
 import { useOrders } from "@/hooks/use-orders";
 import { Order } from "@/lib/types";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
