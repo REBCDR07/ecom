@@ -64,7 +64,7 @@ export default function AddProductPage() {
       imageHint: 'new product',
     };
     
-    addProduct(user.uid, newProductData);
+    addProduct(user.id, newProductData);
     toast({
       title: "Produit ajouté !",
       description: "Votre nouveau produit est maintenant dans votre boutique.",

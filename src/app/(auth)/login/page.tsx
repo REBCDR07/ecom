@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
-  const { signIn, user } = useAuthContext();
+  const { signIn, user, loading } = useAuthContext();
   const { toast } = useToast();
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -32,12 +32,12 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      await signIn(email, password);
-      // The redirection will be handled by the useEffect below
+      const loggedInUser = await signIn(email, password);
       toast({
         title: 'Connexion réussie',
-        description: `Bienvenue !`,
+        description: `Bienvenue ${loggedInUser.displayName || ''}!`,
       });
+      // Redirect after successful login, will be handled by useEffect
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -49,31 +49,20 @@ export default function LoginPage() {
     }
   };
   
-  // This effect redirects the user once they are successfully logged in.
   useEffect(() => {
-    // Only act if `user` is not undefined (i.e., auth state has loaded)
-    if (user) {
+    if (!loading && user) {
         if (user.role === 'seller') {
             router.replace('/seller/dashboard');
         } else if (user.role === 'admin') {
             router.replace('/admin/dashboard');
         } else { 
-            // Default to home page for buyers or if role is undefined temporarily
             router.replace('/');
         }
     }
-    // The `user` dependency ensures this runs when the auth state changes.
-  }, [user, router]);
+  }, [user, loading, router]);
   
-  // Displays a loading state while authentication is initializing.
-  if (user === undefined) {
+  if (loading || user) {
     return <div className="flex items-center justify-center h-full"><p>Chargement...</p></div>;
-  }
-
-  // If the user is already logged in, they will be redirected by the useEffect.
-  // We can show a message during this brief moment.
-  if (user) {
-    return <div className="flex items-center justify-center h-full"><p>Vous êtes déjà connecté. Redirection...</p></div>;
   }
 
   return (

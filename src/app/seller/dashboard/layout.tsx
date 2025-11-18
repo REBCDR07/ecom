@@ -27,7 +27,7 @@ export default function SellerLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const { user, signOut } = useAuthContext();
+  const { user, signOut, loading } = useAuthContext();
   const router = useRouter();
   const { toast } = useToast();
   const { getUnreadNotificationsForUser } = useNotifications();
@@ -36,8 +36,8 @@ export default function SellerLayout({
   
   useEffect(() => {
     if (user && user.role === 'seller') {
-      const unreadNotifications = getUnreadNotificationsForUser(user.uid);
-      const orderNotifications = unreadNotifications.filter(n => n.type === 'new_order');
+      const unreadNotifications = getUnreadNotificationsForUser(user.id);
+      const orderNotifications = unreadNotifications.filter(n => n.type === 'new_order' || n.type === 'payment_proof_submitted');
       setNewOrdersCount(orderNotifications.length);
     }
   }, [user, getUnreadNotificationsForUser, pathname]); // Re-check on path change too
@@ -50,9 +50,9 @@ export default function SellerLayout({
 
 
   useEffect(() => {
-    if (user === undefined) return;
+    if (loading) return;
 
-    if (user === null || user.role !== 'seller') {
+    if (!user || user.role !== 'seller') {
         toast({
             variant: "destructive",
             title: "Accès non autorisé",
@@ -60,7 +60,7 @@ export default function SellerLayout({
         })
         router.replace('/login');
     }
-  }, [user, router, toast]);
+  }, [user, loading, router, toast]);
 
   const handleLogout = async () => {
     if (!signOut) return;
@@ -69,7 +69,7 @@ export default function SellerLayout({
     router.push('/login');
   }
 
-  if (user === undefined || user === null || user.role !== 'seller') {
+  if (loading || !user || user.role !== 'seller') {
       return (
           <div className="flex min-h-[calc(100vh-57px)] items-center justify-center">
               <p>Vérification de l'authentification...</p>

@@ -76,18 +76,17 @@ function BuyerRegisterForm() {
     if(!signUp) return;
     setIsSubmitting(true);
     try {
-      const userCredential = await signUp(data.email, data.password, {
+      await signUp(data.email, data.password, {
         displayName: `${data.firstName} ${data.lastName}`,
         role: 'buyer'
       });
       
-      if(userCredential?.user) {
-        toast({
-          title: "Compte client créé !",
-          description: "Vous pouvez maintenant vous connecter.",
-        });
-        router.push('/login');
-      }
+      toast({
+        title: "Compte client créé !",
+        description: "Vous pouvez maintenant vous connecter.",
+      });
+      router.push('/login');
+
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -200,8 +199,6 @@ function SellerRegisterForm() {
         setIsSubmitting(true);
 
         try {
-            // We're no longer creating the user directly here.
-            // We're sending an application that the admin will approve.
             const { password, confirmPassword, profilePicture, bannerPicture, ...applicationData } = data;
 
             let profilePictureUrl = '';
@@ -212,7 +209,7 @@ function SellerRegisterForm() {
 
             addPendingSeller({
                 ...applicationData,
-                password, // Pass the password along for admin to create user
+                password, 
                 profilePicture: profilePictureUrl,
                 bannerPicture: bannerPictureUrl,
             });

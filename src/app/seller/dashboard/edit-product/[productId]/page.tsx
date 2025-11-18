@@ -36,7 +36,7 @@ export default function EditProductPage() {
 
   useEffect(() => {
     if (user && user.role === 'seller' && productId) {
-        const seller = getSellerById(user.uid);
+        const seller = getSellerById(user.id);
         if (seller) {
             const foundProduct = seller.products?.find(p => p.id === productId);
             if (foundProduct) {
@@ -84,7 +84,7 @@ export default function EditProductPage() {
       imageHint: product.imageHint,
     };
     
-    updateProduct(user.uid, updatedProductData);
+    updateProduct(user.id, updatedProductData);
     toast({
       title: "Produit mis à jour !",
       description: "Les informations de votre produit ont été sauvegardées.",

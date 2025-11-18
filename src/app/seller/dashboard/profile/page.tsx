@@ -53,7 +53,7 @@ export default function ManageSellerProfilePage() {
 
     useEffect(() => {
         if (user && user.role === 'seller') {
-            const sellerData = getSellerById(user.uid);
+            const sellerData = getSellerById(user.id);
             if (sellerData) {
               setSeller(sellerData);
               form.reset({
@@ -71,7 +71,7 @@ export default function ManageSellerProfilePage() {
 
     const onSubmit: SubmitHandler<ProfileFormValues> = (data) => {
         if (!user) return;
-        updateSellerProfile(user.uid, data);
+        updateSellerProfile(user.id, data);
         toast({
             title: "Profil mis à jour !",
             description: "Vos informations ont été sauvegardées avec succès.",
@@ -83,7 +83,7 @@ export default function ManageSellerProfilePage() {
         return <p>Chargement...</p>;
     }
     
-    const bannerImage = seller.bannerPicture || `https://picsum.photos/seed/${seller.uid}-banner/1600/400`;
+    const bannerImage = seller.bannerPicture || `https://picsum.photos/seed/${seller.id}-banner/1600/400`;
 
   return (
     <div className="container mx-auto max-w-4xl py-8">
