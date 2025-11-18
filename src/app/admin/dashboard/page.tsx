@@ -16,200 +16,108 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Check, X, Settings } from "lucide-react";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Check, X, User, ShoppingBag, DollarSign, Users } from "lucide-react";
 import { useSellers } from "@/hooks/use-sellers";
 import { useToast } from "@/hooks/use-toast";
-import { SellerApplication } from "@/lib/types";
+import { SellerApplication, Seller, User as AppUser, Order } from "@/lib/types";
 import { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManageAdminProfilePage from "./manage-profile/page";
 
-const salesData = [
-  { month: "Jan", sales: 850000 },
-  { month: "Fév", sales: 980000 },
-  { month: "Mar", sales: 1100000 },
-  { month: "Avr", sales: 1250000 },
-];
-const salesChartConfig = {
-  sales: {
-    label: "Ventes",
-    color: "hsl(var(--primary))",
-  },
-} 
-
-const signupsData = [
-  { month: "Jan", clients: 25, vendeurs: 5 },
-  { month: "Fév", clients: 30, vendeurs: 8 },
-  { month: "Mar", clients: 45, vendeurs: 4 },
-  { month: "Avr", clients: 52, vendeurs: 7 },
-];
-
-const signupsChartConfig = {
-  clients: {
-    label: "Clients",
-    color: "hsl(var(--chart-1))",
-  },
-  vendeurs: {
-    label: "Vendeurs",
-    color: "hsl(var(--chart-2))",
-  },
-}
-
-function MainDashboard({ pendingSellers, onApprove, onReject }: { pendingSellers: SellerApplication[], onApprove: (id: string) => void, onReject: (id: string) => void}) {
+function MainDashboard({
+  pendingSellers,
+  onApprove,
+  onReject,
+  stats,
+}: {
+  pendingSellers: SellerApplication[];
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+  stats: { totalSales: number; totalProducts: number; totalClients: number };
+}) {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                      Vendeurs en attente
-                  </CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <div className="text-2xl font-bold">{pendingSellers.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                      Nouvelles demandes d'inscription
-                  </p>
-              </CardContent>
-          </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                      Ventes totales (ce mois)
-                  </CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <div className="text-2xl font-bold">1,250,000 F CFA</div>
-                  <p className="text-xs text-muted-foreground">
-                      +15% par rapport au mois dernier
-                  </p>
-              </CardContent>
-          </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                      Nouveaux clients
-                  </CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <div className="text-2xl font-bold">+52</div>
-                    <p className="text-xs text-muted-foreground">
-                      +2 depuis hier
-                  </p>
-              </CardContent>
-          </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                      Produits actifs
-                  </CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <div className="text-2xl font-bold">342</div>
-                    <p className="text-xs text-muted-foreground">
-                      Total des produits en ligne
-                  </p>
-              </CardContent>
-          </Card>
-      </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Card>
-                <CardHeader>
-                  <CardTitle>Évolution des ventes</CardTitle>
-                  <CardDescription>Ventes des 4 derniers mois.</CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                  <ChartContainer config={salesChartConfig} className="h-[250px] w-full">
-                      <BarChart accessibilityLayer data={salesData}>
-                          <CartesianGrid vertical={false} />
-                          <XAxis
-                              dataKey="month"
-                              tickLine={false}
-                              tickMargin={10}
-                              axisLine={false}
-                          />
-                          <ChartTooltip
-                              content={<ChartTooltipContent />}
-                              cursor={false}
-                          />
-                          <Bar dataKey="sales" fill="var(--color-sales)" radius={8} />
-                      </BarChart>
-                  </ChartContainer>
-              </CardContent>
-          </Card>
-          <Card>
-                <CardHeader>
-                  <CardTitle>Évolution des inscriptions</CardTitle>
-                  <CardDescription>Inscriptions des 4 derniers mois.</CardDescription>
-              </CardHeader>
-              <CardContent  className="pl-2">
-                    <ChartContainer config={signupsChartConfig} className="h-[250px] w-full">
-                      <BarChart accessibilityLayer data={signupsData}>
-                          <CartesianGrid vertical={false} />
-                          <XAxis
-                              dataKey="month"
-                              tickLine={false}
-                              tickMargin={10}
-                              axisLine={false}
-                          />
-                          <ChartTooltip
-                              content={<ChartTooltipContent />}
-                              cursor={false}
-                          />
-                          <Bar dataKey="clients" fill="var(--color-clients)" radius={4} />
-                          <Bar dataKey="vendeurs" fill="var(--color-vendeurs)" radius={4} />
-                      </BarChart>
-                  </ChartContainer>
-              </CardContent>
-          </Card>
-      </div>
-      <Card>
-          <CardHeader>
-              <CardTitle>Demandes d'inscription des vendeurs</CardTitle>
-              <CardDescription>
-                  Approuvez ou rejetez les nouvelles demandes de vendeurs.
-              </CardDescription>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Vendeurs en attente</CardTitle>
+            <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-                <Table>
-                  <TableHeader>
-                      <TableRow>
-                      <TableHead>Nom de l'entreprise</TableHead>
-                      <TableHead>Date de demande</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                      {pendingSellers.length > 0 ? (
-                          pendingSellers.map((seller) => (
-                          <TableRow key={seller.id}>
-                              <TableCell className="font-medium">{seller.companyName}</TableCell>
-                              <TableCell>{new Date(seller.submissionDate).toLocaleDateString('fr-FR')}</TableCell>
-                              <TableCell className="text-right">
-                                  <Button variant="outline" size="icon" className="mr-2 h-8 w-8 bg-green-500 hover:bg-green-600 text-white" onClick={() => onApprove(seller.id)}>
-                                      <Check className="h-4 w-4" />
-                                  </Button>
-                                  <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => onReject(seller.id)}>
-                                      <X className="h-4 w-4" />
-                                  </Button>
-                              </TableCell>
-                          </TableRow>
-                          ))
-                      ) : (
-                          <TableRow>
-                              <TableCell colSpan={3} className="text-center">Aucune demande en attente.</TableCell>
-                          </TableRow>
-                      )}
-                  </TableBody>
-              </Table>
+            <div className="text-2xl font-bold">{pendingSellers.length}</div>
+            <p className="text-xs text-muted-foreground">Nouvelles demandes d'inscription</p>
           </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Ventes totales</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalSales.toLocaleString('fr-FR')} F CFA</div>
+            <p className="text-xs text-muted-foreground">Revenu total généré</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Clients inscrits</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+{stats.totalClients}</div>
+            <p className="text-xs text-muted-foreground">Nombre total de clients</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Produits actifs</CardTitle>
+            <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalProducts}</div>
+            <p className="text-xs text-muted-foreground">Total des produits en ligne</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Demandes d'inscription des vendeurs</CardTitle>
+          <CardDescription>Approuvez ou rejetez les nouvelles demandes de vendeurs.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nom de l'entreprise</TableHead>
+                <TableHead>Date de demande</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pendingSellers.length > 0 ? (
+                pendingSellers.map((seller) => (
+                  <TableRow key={seller.id}>
+                    <TableCell className="font-medium">{seller.companyName}</TableCell>
+                    <TableCell>{new Date(seller.submissionDate).toLocaleDateString('fr-FR')}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="icon" className="mr-2 h-8 w-8 bg-green-500 hover:bg-green-600 text-white" onClick={() => onApprove(seller.id)}>
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => onReject(seller.id)}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center">Aucune demande en attente.</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
       </Card>
     </div>
   )
@@ -219,19 +127,35 @@ export default function AdminDashboard() {
   const { getPendingSellers, approveSeller, rejectSeller } = useSellers();
   const [pendingSellers, setPendingSellers] = useState<SellerApplication[]>([]);
   const { toast } = useToast();
+  const [stats, setStats] = useState({ totalSales: 0, totalProducts: 0, totalClients: 0 });
 
-  const refreshPendingSellers = useCallback(() => {
+  const refreshData = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    // Refresh pending sellers
     setPendingSellers(getPendingSellers());
+
+    // Calculate stats
+    const approvedSellers: Seller[] = JSON.parse(localStorage.getItem('approved_sellers') || '[]');
+    const allOrders: Order[] = JSON.parse(localStorage.getItem('marketconnect_orders') || '[]');
+    const allBuyers: AppUser[] = JSON.parse(localStorage.getItem('buyers') || '[]');
+
+    const totalSales = allOrders.reduce((sum, order) => sum + order.price, 0);
+    const totalProducts = approvedSellers.reduce((sum, seller) => sum + (seller.products?.length || 0), 0);
+    const totalClients = allBuyers.length;
+
+    setStats({ totalSales, totalProducts, totalClients });
+
   }, [getPendingSellers]);
 
   useEffect(() => {
-    refreshPendingSellers();
-  }, [refreshPendingSellers]);
+    refreshData();
+  }, [refreshData]);
 
 
   const handleApprove = (id: string) => {
     approveSeller(id);
-    refreshPendingSellers();
+    refreshData();
     toast({
         title: 'Vendeur approuvé',
         description: 'Le vendeur peut maintenant se connecter et utiliser la plateforme.',
@@ -240,7 +164,7 @@ export default function AdminDashboard() {
 
   const handleReject = (id: string) => {
     rejectSeller(id);
-    refreshPendingSellers();
+    refreshData();
       toast({
         variant: 'destructive',
         title: 'Vendeur rejeté',
@@ -258,7 +182,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="profile">Gérer mon profil</TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard" className="mt-4">
-            <MainDashboard pendingSellers={pendingSellers} onApprove={handleApprove} onReject={handleReject} />
+            <MainDashboard pendingSellers={pendingSellers} onApprove={handleApprove} onReject={handleReject} stats={stats} />
           </TabsContent>
           <TabsContent value="profile" className="mt-4">
             <ManageAdminProfilePage />
