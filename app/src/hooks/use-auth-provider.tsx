@@ -100,12 +100,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = useCallback(async () => {
-    if (user?.uid === 'admin_user') {
-        setUser(null);
-    } else if (auth) {
+    // For both mock admin and real users, setting state to null and signing out is safe.
+    // onAuthStateChanged will handle the final state for real users.
+    setUser(null);
+    if (auth) {
         await firebaseSignOut(auth);
     }
-  }, [auth, user]);
+  }, [auth]);
 
   const value = { user, signUp, signIn, adminLogin, signOut };
 

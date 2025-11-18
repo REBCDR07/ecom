@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(null); 
         }
       } else {
-         // If there is no firebase user, but the current user is an admin, do nothing
+        // Only set user to null if they are not the mock admin user
         if (user?.role !== 'admin') {
             setUser(null);
         }
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [auth, firestore, user]);
+  }, [auth, firestore, user?.role]);
 
   const signUp = useCallback(
     async (email: string, password?: string, additionalData: Partial<AppUser> = {}) => {
@@ -103,9 +103,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = useCallback(async () => {
+    // If the user is the mock admin, just clear the local state
     if (user?.role === 'admin') {
         setUser(null);
     } else if (auth) {
+        // Otherwise, sign out from Firebase
         await firebaseSignOut(auth);
     }
   }, [auth, user]);
