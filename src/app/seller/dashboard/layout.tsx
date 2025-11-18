@@ -3,12 +3,10 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
-  Bell,
   Home,
   LogOut,
   Package,
   Settings,
-  ShoppingBag,
   UserCircle,
   Menu
 } from "lucide-react"
@@ -19,7 +17,6 @@ import { useAuthContext } from "@/hooks/use-auth-provider"
 import { useEffect, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
-import { useOrders } from "@/hooks/use-orders"
 import NotificationsPopover from "@/components/shared/notifications-popover"
 import { Notification, useNotifications } from "@/hooks/use-notifications"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -36,13 +33,11 @@ export default function SellerLayout({
   const { getUnreadNotificationsForUser } = useNotifications();
 
   const [newOrdersCount, setNewOrdersCount] = useState(0);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   
   useEffect(() => {
     if (user && user.type === 'seller') {
       const unreadNotifications = getUnreadNotificationsForUser(user.id);
       const orderNotifications = unreadNotifications.filter(n => n.type === 'new_order');
-      setNotifications(unreadNotifications);
       setNewOrdersCount(orderNotifications.length);
     }
   }, [user, getUnreadNotificationsForUser, pathname]); // Re-check on path change too
@@ -139,10 +134,19 @@ export default function SellerLayout({
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">
               <SidebarNav className="grid gap-2 text-lg font-medium"/>
+               <div className="mt-auto p-4">
+                <Button size="sm" variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Déconnexion
+                </Button>
+              </div>
             </SheetContent>
           </Sheet>
            <div className="w-full flex-1">
-             <h1 className="text-lg font-semibold">Espace Vendeur</h1>
+             <Link href="/" className="flex items-center gap-2 font-semibold">
+                <Package className="h-6 w-6 text-primary" />
+                <span className="">Espace Vendeur</span>
+            </Link>
           </div>
             <div className="ml-auto">
                 <NotificationsPopover userType="seller" />
